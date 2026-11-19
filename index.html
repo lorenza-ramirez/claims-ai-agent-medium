@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vision Medium v4: my claims with today on the side (DS 3.0)</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F1F2F5; --surface:#FFFFFF; --surface-2:#F5F6F8;
+  --ink:#16181D; --muted:#5B6170; --faint:#8C919D;
+  --line:#E3E5EA; --line-strong:#CDD1D9;
+  --accent:#2747E5; --accent-soft:#E9EDFD;
+  --red:#C0392B; --red-soft:#FBE7E5;
+  --ok:#2A7A4B; --ok-soft:#E3F3EA; --warn:#A8660E; --warn-soft:#FBF1E1;
+  --stage:#EEEAFB; --stage-ink:#4A38A8; --person:#E4F1E7; --person-ink:#2A6B3F;
+  --shadow:0 1px 2px rgba(20,24,33,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bg:#111317; --surface:#1A1D23; --surface-2:#21252C;
+    --ink:#E9EBEF; --muted:#A4AAB6; --faint:#7D8491;
+    --line:#2C3139; --line-strong:#3B414B;
+    --accent:#8098FF; --accent-soft:#222B4D;
+    --red:#F08A80; --red-soft:#3A1E1B;
+    --ok:#62C48B; --ok-soft:#173323; --warn:#E0A450; --warn-soft:#3A2C17;
+    --stage:#2A2442; --stage-ink:#C9BCFA; --person:#1B3324; --person-ink:#7FD3A0;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .small{font-size:13px}
+
+/* Top bar */
+.topbar{height:54px;display:flex;align-items:center;gap:16px;padding:0 18px}
+.crumbs{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:15px}
+.crumbs b{color:var(--ink);font-weight:500}
+.crumbs button{background:none;border:0;padding:4px 6px;border-radius:6px;color:var(--muted);font-size:15px}
+.crumbs button:hover{background:var(--surface)}
+.search{flex:1;max-width:470px;margin:0 auto;height:36px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:8px;color:var(--faint);font-size:14px}
+.search kbd{font:inherit;font-size:12px;border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--surface)}
+.scribe{color:var(--accent);font-weight:500;background:none;border:0}
+.ai-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:9px;border:0;background:var(--accent-soft);color:var(--accent);font-weight:500}
+.ai-btn .spin{width:12px;height:12px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;display:none;animation:spin .8s linear infinite}
+.ai-btn.working .spin{display:inline-block}
+.ai-btn.working .star{display:none}
+.proto-btn{height:34px;padding:0 10px;border-radius:8px;border:1px dashed var(--line-strong);background:none;color:var(--muted);font-size:12px}
+.main{padding:0 12px 12px;height:calc(100vh - 54px)}
+
+/* Station */
+.station{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:12px;height:100%}
+.col{overflow:auto;min-height:0}
+.hello{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:8px 4px 12px}
+.hello h1{margin:0;font-size:22px;font-weight:600;letter-spacing:-.01em}
+.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:3px}
+.tabs button{border:0;background:none;padding:5px 12px;border-radius:7px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:6px}
+.tabs button[aria-selected="true"]{background:var(--surface-2);color:var(--ink)}
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:10px;font-size:11px;font-weight:700;display:inline-grid;place-items:center;background:var(--accent);color:#fff}
+.agentbar{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.box-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.box-head h2{margin:0;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.need{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:12px 16px}
+.need:first-of-type{border-top:0}
+.need:hover{background:var(--surface-2)}
+.need .why{display:flex;gap:8px;align-items:flex-start;margin-top:3px;color:var(--muted);font-size:13px}
+.need .why .av{width:16px;height:16px;flex:none;margin-top:2px}
+.need.done{opacity:.6}
+.grp-head{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;background:none;border:0;border-top:1px solid var(--line);padding:11px 16px;text-align:left}
+.grp-head:first-of-type{border-top:0}
+.grp-head:hover{background:var(--surface-2)}
+.grp-body{padding:0 16px 10px}
+.row{display:grid;grid-template-columns:100px 1fr auto auto;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:8px 0;font-size:13px}
+.row:hover{color:var(--accent)}
+.chev{width:7px;height:7px;border-right:1.5px solid var(--faint);border-bottom:1.5px solid var(--faint);transform:rotate(45deg);display:inline-block;margin-left:8px;transition:transform .15s}
+.open > .chev,.open .chev{transform:rotate(-135deg)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.pill.red{background:var(--red-soft);color:var(--red)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.wait{background:var(--accent-soft);color:var(--accent)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.grey{background:var(--surface-2);color:var(--muted)}
+.side .box-body{padding:12px 16px}
+.mini-rule{padding:10px 0;border-top:1px solid var(--line)}
+.mini-rule:first-child{border-top:0;padding-top:0}
+.mini-rule b{display:block;font-size:13px;font-weight:600}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:6px 0 4px}
+.bar span{display:block;height:100%;background:var(--accent);transition:width .3s}
+.btn{height:32px;padding:0 13px;border-radius:9px;border:1px solid var(--line-strong);background:var(--surface);font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.06);background:var(--accent)}
+.btn.outline{border-color:var(--accent);color:var(--accent)}
+.btn.ghost{border-color:transparent;color:var(--muted)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:500}
+
+/* Worklist, matching the Workable Claims page */
+.wl{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden}
+.wl-tabs{display:flex;align-items:center;gap:4px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.wl-tabs button{border:0;background:none;padding:6px 12px;border-radius:8px;font-size:15px;color:var(--ink)}
+.wl-tabs button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.wl-tabs .vsep{width:1px;height:22px;background:var(--line);margin:0 6px}
+.wl-tabs .spacer{flex:1}
+.wl-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.wl-note{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.wl-note .av{width:16px;height:16px}
+.wl-scroll{overflow:auto;flex:1}
+.wt{width:100%;border-collapse:collapse;font-size:14px}
+.wt th{position:sticky;top:0;z-index:2;background:var(--surface-2);text-align:left;font-weight:500;color:var(--ink);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.wt td{padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.wt tr.claimrow{cursor:pointer}
+.wt tr.claimrow:hover td{background:var(--surface-2)}
+.wt tr.claimrow.done td{opacity:.55}
+.wt .cb{width:16px;height:16px;border:1.5px solid var(--line-strong);border-radius:4px;display:inline-block;vertical-align:middle}
+.grow td{background:var(--surface-2);padding:9px 12px}
+.grow button.gt{display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;width:100%;text-align:left;flex-wrap:wrap}
+.gchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);border-radius:9px;padding:3px 10px;background:var(--surface);font-size:13px;font-weight:500}
+.gchip.needchip{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+.gchip.needchip .cnt{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--warn);color:#fff;font-size:11px;font-weight:700;display:inline-grid;place-items:center}
+.gchip.needchip.clear{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.gchip .av{width:16px;height:16px}
+.gchip.muted{font-weight:400;color:var(--muted)}
+.gcaret{width:8px;height:8px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg);margin:0 8px 0 4px}
+.grow.open .gcaret{transform:rotate(-135deg)}
+.stpill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:500}
+.stpill.denied{color:var(--red)}
+.ring{width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);border-right-color:transparent;display:inline-block}
+.plink{color:var(--accent)}
+.asg{width:28px;height:28px;border-radius:50%;background:var(--person);color:var(--person-ink);display:inline-grid;place-items:center;font-size:11px;font-weight:700}
+.agentcell{display:flex;align-items:center;gap:6px;color:var(--warn);font-size:13px;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+.agentcell .av{width:16px;height:16px;flex:none}
+.agentcell span{overflow:hidden;text-overflow:ellipsis}
+.agentcell.done{color:var(--ok)}
+/* Today panel */
+.today{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden}
+.today-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.today-head b{font-size:15px}
+.today-body{overflow:auto;padding:14px 16px;flex:1}
+.tsec{margin-top:16px}
+.tsec h3{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--muted)}
+.tline{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:none;border:0;border-top:1px solid var(--line);padding:9px 0;text-align:left;font-size:13px}
+.tline:first-of-type{border-top:0}
+.tline:hover{color:var(--accent)}
+.tline .n{color:var(--muted);white-space:nowrap;display:flex;align-items:center}
+.tsub{padding:0 0 6px 10px;border-left:2px solid var(--line);margin:0 0 6px}
+.tsub button{display:flex;justify-content:space-between;gap:8px;width:100%;background:none;border:0;padding:5px 0;font-size:13px;text-align:left}
+.tsub button:hover{color:var(--accent)}
+.needbox{border:1px solid var(--warn);background:var(--warn-soft);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:13px}
+.needbox b{color:var(--warn)}
+
+/* Today panel v4 */
+.tp-greet{font-size:14px;margin:0 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+.tile{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px 12px;text-align:left}
+.tile:hover{border-color:var(--line-strong);background:var(--surface-2)}
+.tile b{display:block;font-size:22px;font-weight:650;line-height:1.1}
+.tile span{font-size:12px;color:var(--muted)}
+.tile.need{border-color:var(--warn);background:var(--warn-soft)}
+.tile.need b,.tile.need span{color:var(--warn)}
+.tile.clear{border-color:var(--ok);background:var(--ok-soft)}
+.tile.clear b,.tile.clear span{color:var(--ok)}
+.tp-label{font-size:13px;font-weight:600;margin:0 0 8px}
+.todo{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px 12px;margin-bottom:6px}
+.todo:hover{border-color:var(--accent)}
+.todo .tdot{width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none}
+.todo .tdot.b{background:var(--accent)}
+.todo .tt{flex:1;font-size:13px}
+.todo .tt b{display:block;font-size:14px;font-weight:600}
+.todo .go{color:var(--accent);font-weight:500;font-size:13px;white-space:nowrap}
+.acc{border-top:1px solid var(--line);margin-top:14px}
+.acc-sec{border-bottom:1px solid var(--line)}
+.acc-head{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:12px 0;text-align:left}
+.acc-head b{flex:1;font-size:14px;font-weight:600}
+.acc-head .cnt{font-size:13px;color:var(--muted)}
+.acc-head .chev{margin-left:2px}
+.acc-body{padding:0 0 12px}
+.li{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:none;border:0;border-radius:8px;padding:7px 8px;margin:0 -8px;width:calc(100% + 16px);text-align:left;font-size:13px}
+.li:hover{background:var(--surface-2)}
+.li .r{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.li-sub{margin:0 0 6px 12px;padding-left:10px;border-left:2px solid var(--line)}
+.learn{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.learn-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.learn-top b{font-size:13px;font-weight:600}
+.learn .meta{font-size:12px;color:var(--muted);margin-top:4px}
+.learn .bar{margin:6px 0 2px;height:4px}
+.st{font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.st.run{background:var(--ok-soft);color:var(--ok)}
+.st.learnst{background:var(--accent-soft);color:var(--accent)}
+.st.wait{background:var(--warn-soft);color:var(--warn)}
+.st.pause{background:var(--surface-2);color:var(--muted)}
+.howit{font-size:12px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:8px 10px;margin-bottom:8px}
+
+/* Learning conversation, opened beside Today */
+.lconv{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden}
+.lconv-top{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.lconv-top b{font-size:15px}
+.lconv .thread{padding:20px 18px 8px;position:relative}
+.lconv .inner{max-width:760px}
+.lconv .composer{padding:8px 14px 12px}
+.lconv .composer .inner{max-width:760px}
+.fix{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px}
+.fix-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.fix-top b{font-size:14px;font-weight:600}
+.fix .meta{font-size:13px;color:var(--muted);margin-top:4px}
+.fix .btns{margin-top:10px}
+.sg{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:8px}
+.sg.current{border-color:var(--accent)}
+.sg.compact{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);padding:9px 14px}
+.sg.compact.ok{color:var(--ok)}
+.sg-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.sg-top b{font-size:14px}
+.prog{display:flex;align-items:center;gap:10px;margin:8px 0 4px;font-size:13px;color:var(--muted)}
+.prog .bar{flex:1;max-width:260px;margin:0}
+
+.claim.claim3{grid-template-columns:320px minmax(0,1fr) 340px}
+.claim3 .p-body{padding:12px 14px 16px}
+.claim3 .pgrid{gap:12px}
+.claim3 .chipv{font-size:13px;padding:4px 9px}
+.claim3 .widgets{grid-template-columns:1fr}
+.claim3 .thread{padding:16px 4px 8px}
+.claim3 .card{padding:16px}
+.claim3 .divider{margin:14px -16px}
+@media (max-width:1280px){ .claim.claim3{grid-template-columns:300px minmax(0,1fr)} .claim3 .today{grid-column:1 / -1;height:auto;max-height:none} }
+
+.mini-spin{width:11px;height:11px;border-radius:50%;border:2px solid var(--accent);border-right-color:transparent;display:inline-block;animation:spin .8s linear infinite;flex:none}
+.agentcell.working{color:var(--accent)}
+.gchip.workchip{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.gchip.workchip .cnt{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:inline-grid;place-items:center}
+.gchip.donechip{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.gt-row{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.gt-row .gt{width:auto;flex:1}
+.btn.mini{height:28px;padding:0 10px;font-size:12px;border-radius:8px}
+.asg2{position:relative;display:inline-block}
+.asg-ag{position:absolute;right:-6px;bottom:-4px;width:16px;height:16px;border-radius:50%;background:var(--surface);display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--surface)}
+.asg-ag .av{width:13px;height:13px}
+.tiles.three{grid-template-columns:repeat(3,1fr)}
+
+/* Rules */
+.rule{padding:16px;border-top:1px solid var(--line)}
+.rule:first-of-type{border-top:0}
+.rule-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.rule h3{margin:0;font-size:15px;font-weight:600;max-width:62ch}
+.rule .src{font-size:13px;color:var(--muted);margin-top:4px}
+.stats{display:flex;gap:20px;flex-wrap:wrap;margin:12px 0}
+.stats div b{display:block;font-size:17px;font-weight:650}
+.stats div span{font-size:12px;color:var(--muted)}
+.confirm{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px 14px;margin-top:10px}
+.sugg{display:grid;grid-template-columns:100px 1fr auto;gap:12px;align-items:center;border-top:1px solid var(--line);padding:9px 0;font-size:13px}
+
+/* Claim view, matching the Mild screen */
+.claim{display:grid;grid-template-columns:400px 1fr;gap:12px;height:100%}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.p-head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.p-head b{font-size:15px;font-weight:500}
+.p-body{overflow:auto;padding:14px 18px 18px;flex:1}
+.sec{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--ink);margin:4px 0 12px;background:none;border:0;padding:0}
+.sec .chev{transform:rotate(-135deg);margin:0 0 0 4px}
+.agent-card{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:18px}
+.agent-card b{display:block;font-size:15px;font-weight:600}
+.agent-card .st{display:block;color:var(--muted);font-size:14px}
+.agent-card > div{min-width:0}
+.agent-card .st.needs{color:var(--warn)}
+.agent-card .rulelink{display:block;margin-top:6px;font-size:13px}
+.av{width:28px;height:28px;flex:none}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.pk{font-size:14px;color:var(--muted);margin-bottom:5px}
+.chipv{display:inline-flex;align-items:center;font-size:14px;font-weight:500;padding:5px 11px;border-radius:8px;background:var(--surface-2)}
+.chipv.red{background:var(--red-soft);color:var(--red)}
+.chipv.stage{background:var(--stage);color:var(--stage-ink)}
+.chipv.person{background:var(--person);color:var(--person-ink)}
+.chipv.wait{background:var(--accent-soft);color:var(--accent)}
+.chipv.ok{background:var(--ok-soft);color:var(--ok)}
+.sep{border-top:1px solid var(--line);margin:18px 0 14px}
+.ctx-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.ctx-head b{font-size:16px;font-weight:600}
+.widgets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.widget{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.widget .k{font-size:12px;color:var(--muted)}
+.widget .v{font-weight:600}
+.widget.wide{grid-column:1/-1}
+.doc h3{margin:0 0 2px;font-size:16px}
+.doc .meta{color:var(--muted);font-size:13px;margin-bottom:12px}
+.doc p{margin:0 0 10px}
+.doc .hl{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent);padding:6px 10px;border-radius:4px}
+.doc .hl2{background:var(--warn-soft);box-shadow:inset 3px 0 0 var(--warn);padding:6px 10px;border-radius:4px}
+.back{background:none;border:0;color:var(--accent);padding:0;font-weight:500;margin-bottom:12px}
+
+.convo{display:flex;flex-direction:column;min-height:0;background:transparent}
+.view-switch{margin:4px auto 0;width:min(100%,1060px);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;gap:6px}
+.view-switch button{border:1px solid transparent;background:none;border-radius:8px;padding:5px 12px;font-weight:500;color:var(--muted)}
+.view-switch button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.thread{flex:1;overflow:auto;padding:20px 8px 8px}
+.inner{max-width:1060px;margin:0 auto}
+.cmsg{display:flex;gap:14px;margin-bottom:20px}
+.cmsg .cbody{flex:1;min-width:0}
+.cmsg .who{font-size:14px;font-weight:600;margin-bottom:8px}
+.cmsg p{margin:0 0 10px;max-width:72ch}
+.cmsg.user{justify-content:flex-end}
+.cmsg.user .cbody{flex:none;max-width:70%;text-align:right}
+.cmsg.user .bubble{display:inline-block;text-align:left;background:var(--accent-soft);padding:10px 14px;border-radius:14px}
+.cevent{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:-8px 0 18px 42px;flex-wrap:wrap}
+.cevent::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--line-strong);flex:none}
+.cevent .undo{background:none;border:0;padding:0;color:var(--accent);font-weight:500;font-size:13px}
+.card{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:18px 20px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 10px;font-size:18px;font-weight:600}
+.card h4{margin:0 0 6px;font-size:15px;font-weight:600}
+.denied{color:var(--red)}
+.ev{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:3px 10px;border-radius:7px;border:1px solid var(--line);background:var(--surface-2);margin:0 6px 6px 0}
+.ev:hover{border-color:var(--accent);color:var(--accent)}
+.ev::before{content:"";width:10px;height:12px;border:1.5px solid currentColor;border-radius:2px;opacity:.6}
+.thumbs{display:flex;gap:10px;color:var(--muted);margin-top:4px}
+.thumbs button{background:none;border:0;padding:2px;color:inherit}
+.thumbs button[aria-pressed="true"]{color:var(--accent)}
+.divider{border-top:1px solid var(--line);margin:16px -20px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.choice{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface);text-align:left;width:100%}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice:disabled{cursor:default}
+.choice.sel{border-color:var(--accent);background:var(--accent-soft)}
+.choice.dim{opacity:.5}
+.choice b{display:block;font-size:15px}
+.choice q{display:block;margin:8px 0;font-size:13px;color:var(--muted);quotes:"\201C" "\201D"}
+.plan-step{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:8px}
+.plan-step.current{border-color:var(--accent)}
+.plan-step.compact{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 16px;color:var(--muted)}
+.plan-step.compact.done{color:var(--ok)}
+.ps-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ps-top b{font-size:16px}
+.chg{display:inline-flex;align-items:center;gap:6px;font-size:13px;background:var(--surface-2);border-radius:7px;padding:4px 10px;margin-top:10px}
+.trace{list-style:none;margin:6px 0 0;padding:0}
+.trace li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.trace li:first-child{border-top:0}
+.trace .ck{width:16px;height:16px;border-radius:50%;background:var(--ok);flex:none;margin-top:2px;position:relative}
+.trace .ck::after{content:"";position:absolute;left:4px;top:5px;width:7px;height:3.5px;border-left:1.6px solid #fff;border-bottom:1.6px solid #fff;transform:rotate(-45deg)}
+.rulebox{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface-2);margin-top:10px;font-size:13px}
+.act-list{list-style:none;margin:0;padding:0}
+.act-list li{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.act-list li:first-child{border-top:0}
+.act-list .d{width:8px;height:8px;border-radius:50%;background:var(--line-strong);margin-top:7px;flex:none}
+.act-list .d.a{background:var(--accent)}
+.act-list .t{color:var(--faint);font-size:12px}
+
+/* Working */
+.work{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--surface);max-width:560px}
+.work-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.wstep{display:flex;align-items:flex-start;gap:10px;padding:4px 0;font-size:14px;color:var(--faint)}
+.wstep.active,.wstep.done{color:var(--ink)}
+.wcheck{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--line-strong);flex:none;margin-top:3px;position:relative}
+.wstep.done .wcheck{background:var(--ok);border-color:var(--ok)}
+.wstep.done .wcheck::after{content:"";position:absolute;left:3px;top:4px;width:6px;height:3px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg)}
+.wstep.active .wcheck{border-color:var(--accent);border-right-color:transparent;animation:spin .8s linear infinite}
+.wdetail{display:none;font-size:13px;color:var(--muted)}
+.wstep.done .wdetail{display:block}
+.wsum{display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;color:var(--muted);font-size:13px;margin-bottom:10px}
+.wsum .wcheck{margin:0;background:var(--ok);border-color:var(--ok)}
+.wsum .wcheck::after{content:"";position:absolute;left:3px;top:4px;width:6px;height:3px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg)}
+
+/* Composer */
+.composer{padding:8px 8px 4px}
+.composer .inner{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chip{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2)}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.input-row{display:flex;gap:8px;align-items:center}
+.input-row input{flex:1;border:0;background:none;font:inherit;font-size:15px;color:var(--ink);outline:none;min-width:0;padding:8px 4px}
+.send{width:34px;height:34px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
+.helper{font-size:12px;color:var(--faint);margin:6px 4px 0}
+
+/* Prototype controls */
+.proto{position:fixed;left:16px;bottom:16px;width:280px;background:var(--surface);border:1px solid var(--line-strong);border-radius:12px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:40;display:none}
+.proto.show{display:block}
+.proto h4{margin:0 0 8px;font-size:13px}
+.proto button{display:block;width:100%;text-align:left;background:none;border:0;padding:5px 6px;border-radius:6px;font-size:13px}
+.proto button:hover{background:var(--surface-2)}
+.proto .psep{border-top:1px solid var(--line);margin:8px 0}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+@media (max-width:1100px){
+  .station,.claim{grid-template-columns:1fr;height:auto}
+  .main{height:auto}
+  .col{overflow:visible}
+  .convo{min-height:80vh}
+  .choices{grid-template-columns:1fr}
+  .search{display:none}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"><style id="ds3">
+/* ===== Design System 3.0 tokens (from Figma: Theme, Value, Type Ladder) ===== */
+:root{
+  --ds-font:"Geist",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --ds-mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ds-shell:#f1f3fe; --ds-base:#ffffff; --ds-1:#fafafa; --ds-2:#f5f5f5; --ds-3:#e5e5e5;
+  --ds-fg1:#1f1f1f; --ds-fg2:#454545; --ds-fg3:#737373;
+  --ds-accent:#1132ee; --ds-accent-hover:#0d28bf; --ds-accent-25:#f1f3fe; --ds-accent-50:#e7eafd; --ds-accent-100:#cfd6fc;
+  --ds-border:rgba(0,0,0,.10); --ds-border-strong:rgba(0,0,0,.20);
+  --ds-success:#228048; --ds-success-bg:rgba(42,153,83,.10);
+  --ds-warning:#9f5617; --ds-warning-bg:rgba(194,112,35,.10);
+  --ds-danger:#b52b2b;  --ds-danger-bg:rgba(181,43,43,.10);
+  --ds-info:#345dbf;    --ds-info-bg:rgba(65,107,207,.10);
+  --ds-teal:#1e756e;    --ds-teal-bg:rgba(36,147,136,.10);
+  --ds-violet:#6545a0;  --ds-violet-bg:rgba(129,88,205,.10);
+  --ds-slate:#323f54;   --ds-slate-bg:rgba(71,85,105,.10);
+  --ds-rd-s:4px; --ds-rd:8px; --ds-rd-l:12px; --ds-rd-xl:16px; --ds-rd-full:100px;
+  --ds-side:208px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ds-shell:#111324; --ds-base:#141414; --ds-1:#1f1f1f; --ds-2:#262626; --ds-3:#2b2b2b;
+    --ds-fg1:#e5e5e5; --ds-fg2:#a3a3a3; --ds-fg3:#737373;
+    --ds-accent:#405bf2; --ds-accent-hover:#7084f5; --ds-accent-25:#111324; --ds-accent-50:#121833; --ds-accent-100:#0e1640;
+    --ds-border:rgba(255,255,255,.10); --ds-border-strong:rgba(255,255,255,.20);
+    --ds-success:#41c589; --ds-success-bg:rgba(42,153,83,.20);
+    --ds-warning:#e39751; --ds-warning-bg:rgba(194,112,35,.20);
+    --ds-danger:#d76268;  --ds-danger-bg:rgba(181,43,43,.20);
+    --ds-info:#6e93ed;    --ds-info-bg:rgba(65,107,207,.20);
+    --ds-teal:#64d4c6;    --ds-teal-bg:rgba(36,147,136,.20);
+    --ds-violet:#b5a2eb;  --ds-violet-bg:rgba(129,88,205,.20);
+    --ds-slate:#cbd5e1;   --ds-slate-bg:rgba(71,85,105,.20);
+  }
+}
+:root{--bg:var(--ds-shell);--surface:var(--ds-base);--surface-2:var(--ds-2);--ink:var(--ds-fg1);--muted:var(--ds-fg2);--faint:var(--ds-fg3);--line:var(--ds-border);--line-strong:var(--ds-border-strong);--accent:var(--ds-accent);--accent-soft:var(--ds-accent-50);--red:var(--ds-danger);--red-soft:var(--ds-danger-bg);--ok:var(--ds-success);--ok-soft:var(--ds-success-bg);--warn:var(--ds-warning);--warn-soft:var(--ds-warning-bg);--stage:var(--ds-violet-bg);--stage-ink:var(--ds-violet);--person:var(--ds-success-bg);--person-ink:var(--ds-success);--shadow:none;}@media (prefers-color-scheme: dark){:root{--bg:var(--ds-shell);--surface:var(--ds-base);--surface-2:var(--ds-2);--ink:var(--ds-fg1);--muted:var(--ds-fg2);--faint:var(--ds-fg3);--line:var(--ds-border);--line-strong:var(--ds-border-strong);--accent:var(--ds-accent);--accent-soft:var(--ds-accent-50);--red:var(--ds-danger);--red-soft:var(--ds-danger-bg);--ok:var(--ds-success);--ok-soft:var(--ds-success-bg);--warn:var(--ds-warning);--warn-soft:var(--ds-warning-bg);--stage:var(--ds-violet-bg);--stage-ink:var(--ds-violet);--person:var(--ds-success-bg);--person-ink:var(--ds-success);--shadow:none;}}
+/* ===== DS 3.0 components ===== */
+html,body{font-family:var(--ds-font)}
+body{background:var(--ds-shell);color:var(--ds-fg1);padding-left:var(--ds-side)}
+button,input,textarea{font-family:var(--ds-font)}
+.num,.r.num,b.num{font-family:var(--ds-font);font-variant-numeric:tabular-nums}
+h1,h2,h3,h4,h5,b,strong{font-weight:600}
+/* Air App Shell side navigation */
+.ds-side{position:fixed;left:0;top:0;bottom:0;width:var(--ds-side);background:var(--ds-shell);padding:12px 8px 12px;display:flex;flex-direction:column;z-index:20;overflow:auto}
+.ds-logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:18px;color:var(--ds-fg1);padding:4px 8px 16px}
+.ds-logo svg{width:20px;height:20px}
+.ds-nav a,.ds-group{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:var(--ds-rd);color:var(--ds-fg2);font-size:14px;font-weight:500;text-decoration:none;cursor:default}
+.ds-nav a:hover{background:rgba(89,89,89,.05)}
+.ds-nav a.on{background:var(--ds-accent-50);color:var(--ds-accent)}
+.ds-nav svg{width:16px;height:16px;flex:none}
+.ds-group{color:var(--ds-fg1);margin-top:12px}
+.ds-sub{margin-left:15px;padding-left:8px;border-left:1px solid var(--ds-border)}
+.ds-foot{margin-top:auto;border-top:1px solid var(--ds-border);padding:12px 8px 0;display:flex;align-items:center;gap:10px;color:var(--ds-fg2);font-size:13px}
+.ds-me{width:28px;height:28px;border-radius:50%;background:var(--ds-success-bg);color:var(--ds-success);display:grid;place-items:center;font-size:11px;font-weight:600}
+/* Top bar */
+.topbar{background:var(--ds-shell)!important;border-bottom:0!important;height:48px!important}
+.search{background:var(--ds-2)!important;border:0!important;border-radius:var(--ds-rd)!important;color:var(--ds-fg3)!important}
+.ai-btn{background:var(--ds-accent-50)!important;color:var(--ds-accent)!important;border-radius:var(--ds-rd)!important;font-weight:500!important}
+.ai-btn svg{color:var(--ds-accent)}
+.crumbs b{font-weight:500}
+/* Buttons: DS pill buttons */
+.btn{border-radius:var(--ds-rd-full)!important;border:1px solid var(--ds-border-strong)!important;background:var(--ds-base)!important;color:var(--ds-fg1)!important;font-weight:500!important;font-size:14px;height:32px;padding:0 14px}
+.btn:hover{background:var(--ds-2)!important}
+.btn.primary{background:var(--ds-accent)!important;border-color:var(--ds-accent)!important;color:#fff!important}
+.btn.primary:hover{background:var(--ds-accent-hover)!important;filter:none!important}
+.btn.outline{color:var(--ds-accent)!important;border-color:var(--ds-accent)!important}
+.btn.ghost{border-color:transparent!important;background:transparent!important;color:var(--ds-fg2)!important}
+.btn.mini{height:28px!important;font-size:12px!important}
+.btn:disabled{opacity:.4}
+.link,.how,.back{color:var(--ds-accent)!important;font-weight:500}
+/* Tags and chips */
+.pill,.tag,.st,.kind,.srcpill,.rec{border-radius:var(--ds-rd)!important;font-weight:500!important}
+.chip{border-radius:var(--ds-rd-full)!important;background:var(--ds-accent-50)!important;border:0!important;color:var(--ds-accent)!important;font-weight:500}
+.chip:hover{background:var(--ds-accent-100)!important}
+/* Surfaces: white cards on the tonal shell */
+.panel,.box,.card,.wl,.today,.convo,.lconv,.qcard,.sum,.fix,.sg,.learn,.exc,.decide,.pos,.dispute-card,.stat,.tile,.work,.todo,.choice,.opt,.widget,.agent-card,.mini,.cando,.qfootbar,.approve-bar,.start-note,.means,.found,.grp,.counts div,.built div,.drow,.need,.thread .card,.lanes,.detail-head,.convo-top,.stage{border-color:var(--ds-border)!important;box-shadow:none!important}
+.panel,.box,.wl,.today,.lconv,.qcard,.card,.sum,.exc,.approve-bar,.detail-head,.rail,.convo,.props-panel{border-radius:var(--ds-rd-l)!important}
+.panel,.box,.wl,.today,.lconv,.rail,.props-panel{background:var(--ds-base)!important}
+/* Tables */
+th{background:var(--ds-2)!important;color:var(--ds-fg1)!important;font-weight:500!important;font-size:13px!important}
+td{border-color:var(--ds-border)!important}
+/* Inputs and composer */
+.input-row{border-color:var(--ds-border)!important;border-radius:var(--ds-rd-l)!important;background:var(--ds-base)!important}
+.send{background:var(--ds-accent)!important}
+textarea{border-color:var(--ds-border-strong)!important;border-radius:var(--ds-rd)!important}
+/* AI emblem: the DS four-petal mark */
+.avatar{background:var(--ds-accent-25) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='60%25'%3E%3Cstop offset='0' stop-color='%231132ee' stop-opacity='.95'/%3E%3Cstop offset='1' stop-color='%237084f5' stop-opacity='.25'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse cx='20' cy='11.5' rx='6.5' ry='9.5' fill='url(%23g)'/%3E%3Cellipse cx='20' cy='28.5' rx='6.5' ry='9.5' fill='url(%23g)'/%3E%3Cellipse cx='11.5' cy='20' rx='9.5' ry='6.5' fill='url(%23g)'/%3E%3Cellipse cx='28.5' cy='20' rx='9.5' ry='6.5' fill='url(%23g)'/%3E%3C/svg%3E") center/72% no-repeat!important;border:0!important}
+.avatar svg,.avatar > *{visibility:hidden}
+svg.av{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='60%25'%3E%3Cstop offset='0' stop-color='%231132ee' stop-opacity='.95'/%3E%3Cstop offset='1' stop-color='%237084f5' stop-opacity='.25'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse cx='20' cy='11.5' rx='6.5' ry='9.5' fill='url(%23g)'/%3E%3Cellipse cx='20' cy='28.5' rx='6.5' ry='9.5' fill='url(%23g)'/%3E%3Cellipse cx='11.5' cy='20' rx='9.5' ry='6.5' fill='url(%23g)'/%3E%3Cellipse cx='28.5' cy='20' rx='9.5' ry='6.5' fill='url(%23g)'/%3E%3C/svg%3E") center/contain no-repeat}
+svg.av *{display:none}
+.ai-btn svg{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='60%25'%3E%3Cstop offset='0' stop-color='%231132ee' stop-opacity='.95'/%3E%3Cstop offset='1' stop-color='%237084f5' stop-opacity='.25'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse cx='20' cy='11.5' rx='6.5' ry='9.5' fill='url(%23g)'/%3E%3Cellipse cx='20' cy='28.5' rx='6.5' ry='9.5' fill='url(%23g)'/%3E%3Cellipse cx='11.5' cy='20' rx='9.5' ry='6.5' fill='url(%23g)'/%3E%3Cellipse cx='28.5' cy='20' rx='9.5' ry='6.5' fill='url(%23g)'/%3E%3C/svg%3E") center/contain no-repeat}
+.ai-btn svg *{display:none}
+/* Prototype controls stay clear of the side nav */
+.proto{left:calc(var(--ds-side) + 16px)!important}
+@media (max-width:1000px){ body{padding-left:0} .ds-side{display:none} .proto{left:16px!important} }
+
+.main{height:calc(100vh - 48px)!important}
+.gchip{border-radius:var(--ds-rd)!important;border-color:var(--ds-border-strong)!important}
+.gchip.needchip{border-color:transparent!important;background:var(--ds-warning-bg)!important;color:var(--ds-warning)!important}
+.gchip.workchip{border-color:transparent!important;background:var(--ds-accent-50)!important;color:var(--ds-accent)!important}
+.wl-tabs button[aria-selected="true"],.tabs button[aria-selected="true"],.view-switch button[aria-pressed="true"]{background:var(--ds-accent-50)!important;color:var(--ds-accent)!important;border-color:transparent!important;border-radius:var(--ds-rd)!important}
+.stpill{border-color:var(--ds-border)!important}
+.asg{background:var(--ds-success-bg)!important;color:var(--ds-success)!important}
+.composer .inner{border-color:var(--ds-border)!important;background:var(--ds-accent-25)!important}
+.cmsg.user .bubble{background:var(--ds-accent-50)!important}
+.tile b{font-weight:600!important}
+.ds-foot svg{width:16px;height:16px;flex:none}
+.ds-logo svg{flex:none}
+.station{grid-template-columns:minmax(0,1fr) 340px!important}
+.claim.claim3{grid-template-columns:300px minmax(0,1fr) 320px!important}
+.wl-tabs{flex-wrap:nowrap!important;overflow:hidden}
+.wl-tabs button{font-size:14px!important;white-space:nowrap;padding:6px 10px!important}
+.wl-tabs .btn.primary{height:30px}
+</style>
+</head>
+<body>
+<nav class="ds-side" aria-label="Main navigation"><div class="ds-logo"><svg viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M9 1.5h2v6.2l4.4-4.4 1.4 1.4L12.4 9H18.5v2h-6.1l4.4 4.4-1.4 1.4-4.4-4.4v6.1H9v-6.1l-4.4 4.4-1.4-1.4L7.6 11H1.5V9h6.1L3.2 4.7l1.4-1.4L9 7.7z"/></svg>Air</div><div class="ds-nav"><a><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8.5 10 3l7 5.5V17H3z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Home</a><a><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 8h14M7 2.5v3M13 2.5v3" stroke="currentColor" stroke-width="1.6"/></svg>Visits</a><a><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m7 10 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Tasks</a>
+        <div class="ds-group"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Revenue Cycle</div>
+        <div class="ds-sub"><a><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="7" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2.5 16c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5M14 5a3 3 0 0 1 0 5.5M16 12c1 .8 1.6 2 1.8 3.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Encounters</a><a class="on"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h7l3 3V17.5H5z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 9h5M8 12h5" stroke="currentColor" stroke-width="1.6"/></svg>Claims</a><a><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.5 2"/><path d="m7.5 7.5 5 5m0-5-5 5" stroke="currentColor" stroke-width="1.6"/></svg>Denials</a><a><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="5" width="15" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Remittances</a></div>
+        <div class="ds-group"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Reporting</div>
+        <div class="ds-sub"><a><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 16V9M8 16V5M12 16v-6M16 16V7" stroke="currentColor" stroke-width="1.8"/></svg>Practice Pulse</a><a><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 16V9M8 16V5M12 16v-6M16 16V7" stroke="currentColor" stroke-width="1.8"/></svg>AI Report Builder</a></div></div><div class="ds-foot"><span class="ds-me">LO</span><span style="flex:1"></span><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4" stroke="currentColor" stroke-width="1.6"/></svg></div></nav>
+<header class="topbar">
+  <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
+  <div class="search" aria-hidden="true">Global search <kbd>ctrl</kbd><kbd>K</kbd></div>
+  <button class="scribe" type="button" tabindex="-1">Scribe</button>
+  <button class="ai-btn" id="aiBtn" type="button"><span class="spin"></span><svg class="star" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l2.2 6.3L20 10l-5.8 1.7L12 18l-2.2-6.3L4 10l5.8-1.7z"/></svg>Athelas Agent</button>
+  <button class="proto-btn" id="protoBtn" type="button" aria-expanded="false">Prototype controls</button>
+</header>
+<main class="main" id="main"></main>
+
+<div class="proto" id="proto" role="dialog" aria-label="Prototype controls">
+  <h4>Prototype controls</h4>
+  <button data-jump="reset">Reset to the start of the day</button>
+  <div class="psep"></div>
+  <button data-jump="station">My claims, agent finished</button>
+  <button data-jump="unsure">Claim where the agent stopped</button>
+  <button data-jump="taught">Lorenza taught the agent</button>
+  <button data-jump="solved">Solved claim, how it was solved</button>
+  <button data-jump="rules">What I've learned, as a conversation</button>
+  <button data-jump="ready">Suggest rule ready for approval</button>
+  <div class="psep"></div>
+  <button data-morgan type="button">Morgan approves the pending rule</button>
+  <button data-hold type="button">Hold: still open</button>
+</div>
+
+<script>
+/* ---------- Story data, fictional ---------- */
+const NEEDS = [
+  {id:"22316790", patient:"Sam Okafor", payer:"Iowa Blue Shield", amt:412.00, why:"The plan of care reads as both habilitative and rehabilitative. I'm not sure which modifier applies.", kind:"unsure"},
+  {id:"22316802", patient:"Grace Holt", payer:"Wellmark", amt:298.00, why:"I don't have Wellmark's modifier policy on file, so I won't guess.", kind:"policy"},
+  {id:"22316815", patient:"Ben Ward", payer:"Prairie Health Plan", amt:186.00, why:"Coverage may have changed. This needs a call to the patient.", kind:"call"},
+  {id:"22316821", patient:"Rosa Diaz", payer:"Iowa Blue Shield", amt:540.00, why:"Denied for medical necessity. This likely needs an appeal, which I don't file.", kind:"appeal"},
+  {id:"22316833", patient:"Luis Ortega", payer:"Medicare", amt:221.40, why:"The payment looks posted to the wrong line. This needs the posting team.", kind:"posting"},
+  {id:"22316840", patient:"Ana Silva", payer:"Iowa Blue Shield", amt:2480.00, why:"The fix is the modifier rule, but it's over my $2,000 limit. I need your OK.", kind:"limit"}
+];
+const HANDLED = [
+  {rule:"mod96", name:"Add modifier 96 to habilitative PT for Iowa Blue Shield", n:23, amt:9840, claims:[["22316905","Alex Rivera",386.00,"Paid"],["22316720","Owen Pike",412.00,"Submitted"],["22316741","Maya Chen",368.00,"Submitted"]]},
+  {rule:"addr", name:"Correct patient address from the eligibility response", n:11, amt:4620, claims:[["22316744","Chris Wu",254.60,"Submitted"],["22316751","Lena Brooks",318.00,"Submitted"]]},
+  {rule:"gp", name:"Add the GP therapy modifier when it's missing", n:7, amt:2740, claims:[["22316758","Dana Park",342.00,"Submitted"]]}
+];
+const CAUGHT = [["22316811","Iowa Blue Shield",412.00,"Missing modifier 96, added before it went out"],["22316816","Wellmark",298.00,"Address didn't match eligibility, corrected"],["22316819","Medicare",221.40,"GP modifier missing, added"]];
+const SOURCES = {
+  record790:{title:"Medical record", meta:"Visit Oct 7, 2026. Sam Okafor. Signed by Dana Lee, PT, DPT.", body:[
+    ["Plan of care: build single leg balance and stair skills not previously attained.","hl"],
+    ["Also: restore gait speed lost after a fall in August.","hl2"],
+    ["Services: therapeutic exercise (97110), neuromuscular re-education (97112), gait training (97116)."]]},
+  remit790:{title:"Remittance", meta:"Iowa Blue Shield, Oct 14, 2026.", body:[["Claim 22316790. Paid $0.00 of $412.00."],["CO-4: a required modifier is missing.","hl"]]},
+  bulletin:{title:"Iowa Blue Shield modifier bulletin", meta:"On file, effective Jan 1, 2026.", body:[["Habilitative PT lines need modifier 96. Rehabilitative lines need modifier 97.","hl"],["When a plan of care includes both, bill each line by the goal it serves."]]},
+  record691:{title:"Medical record", meta:"Visit Oct 30, 2026. Alex Rivera.", body:[["Plan of care: habilitative. Build balance and gait skills not previously attained.","hl"]]},
+  remit691:{title:"Remittance", meta:"Iowa Blue Shield, Nov 10, 2026.", body:[["Claim 22316905. Paid $386.00 of $386.00.","hl"]]}
+};
+const STEPS = {
+  night:{title:"Working through your claims overnight", steps:[["Reading 112 new remits","56 claims need a next step"],["Applying the rules you've taught me","41 solved"],["Checking claims before they go out","9 caught and fixed"],["Holding what I'm unsure about","6 need you"]]},
+  c790:{title:"Reviewing claim 22316790", steps:[["Reading the remittance","Denied Oct 14, CO-4"],["Matching against your modifier rule","The rule doesn't fit cleanly"],["Reviewing the plan of care","Two goals, one of each type"]]},
+  apply:{title:"Updating the claim", steps:[["Applying your choice line by line","96 on 97110 and 97112, 97 on 97116"],["Preparing a corrected claim","Ready for your review"]]}
+};
+
+/* ---------- State ---------- */
+const fresh = () => ({
+  assigned:{}, solvedExtra:0, bulk:{}, tick:0,
+  view:"station", tab:"today", claim:null, left:"props", nightDone:false, working:null, threadTab:"conversation",
+  open:{}, done:{}, seen:{}, thumbs:{},
+  c790:{choice:null, remember:null, s1:false, s2:false, undone:false},
+  limitOk:false,
+  modPaused:false, pauseConfirm:false,
+  learned:false, learnedCount:1,
+  refCount:8, refState:"suggest", showSugg:false,
+  hold:"open",
+  chat:{}
+});
+let S = fresh();
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+const AV = `<svg class="av" viewBox="0 0 28 28" aria-hidden="true"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#8FA2FF"/><stop offset="1" stop-color="#2747E5"/></radialGradient></defs><path fill="url(#g)" d="M14 3c1.6 4.6 3.2 6.6 9 8-5.8 1.4-7.4 3.4-9 8-1.6-4.6-3.2-6.6-9-8 5.8-1.4 7.4-3.4 9-8z" opacity=".95"/><path fill="url(#g)" d="M14 11c.8 2.2 1.7 3.2 4.4 4-2.7.8-3.6 1.8-4.4 4-.8-2.2-1.7-3.2-4.4-4 2.7-.8 3.6-1.8 4.4-4z" opacity=".55"/></svg>`;
+const mAgent = h => `<div class="cmsg">${AV}<div class="cbody"><div class="who">Athelas Agent</div>${h}</div></div>`;
+const mUser = t => `<div class="cmsg user"><div class="cbody"><div class="who">Lorenza</div><div class="bubble">${esc(t)}</div></div></div>`;
+const mEvent = h => `<div class="cevent">${h}</div>`;
+const ev = (id, label) => `<button class="ev" data-src="${id}" type="button">${label || SOURCES[id].title}</button>`;
+const needsLeft = () => NEEDS.filter(n=>!S.done[n.id]).length;
+const thumbs = k => `<div class="thumbs"><button data-thumb="${k}:up" type="button" aria-pressed="${S.thumbs[k]==="up"}" aria-label="Helpful">&#128077;</button><button data-thumb="${k}:down" type="button" aria-pressed="${S.thumbs[k]==="down"}" aria-label="Not helpful">&#128078;</button></div>`;
+function work(key, live){
+  const w = STEPS[key];
+  if (!live) return `<button class="wsum" data-open="w-${key}" type="button" aria-expanded="${!!S.open["w-"+key]}"><span class="wcheck"></span>${({night:"Worked through 56 claims overnight",c790:"Reviewed the remittance, your rule, and the plan of care",apply:"Updated the claim with your choice"})[key]}</button>${S.open["w-"+key]?`<div class="work" style="margin-bottom:12px">${w.steps.map(([a,b])=>`<div class="wstep done"><span class="wcheck"></span><span><span>${a}</span><span class="wdetail">${b}</span></span></div>`).join("")}</div>`:""}`;
+  return `<div class="work" id="workBlock"><div class="work-title">${w.title}</div>${w.steps.map(([a,b])=>`<div class="wstep"><span class="wcheck"></span><span><span>${a}</span><span class="wdetail">${b}</span></span></div>`).join("")}</div>`;
+}
+
+/* ---------- Top bar ---------- */
+function renderTop(){
+  const c = $("#crumbs");
+  if (S.view==="station") c.innerHTML = `<span>Claims</span><span>/</span>${S.tab==="learn"?`<button data-tab="today" type="button">My claims</button><span>/</span><b>Athelas Agent</b>`:"<b>My claims</b>"}`;
+  else c.innerHTML = `<button data-go="station" type="button">Claims</button><span>/</span><b>${S.claim}</b>`;
+  $("#aiBtn").classList.toggle("working", !!S.working);
+}
+
+/* ---------- Station ---------- */
+const WORKING0 = [
+  ["23580244","Noor Haddad","Wellmark",264.00,["Checking eligibility with Wellmark","Comparing coverage dates","Updating the subscriber ID"]],
+  ["23580251","Eli Brooks","Medica",318.00,["Calling Medica for a reference number","Waiting on hold, 4 minutes","Writing down the reference number"]],
+  ["23580263","Ivy Chen","Aetna",186.00,["Rebuilding the claim with the corrected NPI","Previewing the submission","Resubmitting to Aetna"]]
+];
+const ASSIGN_STEPS = ["Reading the claim and remittance","Checking what's missing","Applying the fix","Previewing the submission"];
+const OTHER_GROUPS = [
+  {k:"decision", icon:"Decision Pending", reason:"Upload EOB: payer sends EOB by mail", amt:"$14,280.00", n:"38"},
+  {k:"unsub", icon:"Unsubmitted", reason:"Unsupported by Clearinghouse", amt:"$6,412.50", n:"19"},
+  {k:"posting", icon:"Payment Posting", reason:"Awaiting Deposit Verification", amt:"$9,870.00", n:"24"}
+];
+const SAMPLE_ROWS = {
+  posting:[["23580201","Payment Posting","3d","Jamie Lowell","Dana Lee","10/09/2026","Wellmark"],["23580188","Payment Posting","3d","Priya Natarajan","Dana Lee","10/09/2026","Medicare"]],
+  unsub:[["23580412","Unsubmitted","5d","Noah Brandt","Chris Wu","10/08/2026","Medica"],["23580407","Unsubmitted","5d","Ivy Chen","Chris Wu","10/08/2026","Aetna"]],
+  decision:[["23580167","Decision Pending","30d","Theo Grant","Lena Brooks","10/09/2026","Iowa Blue Shield"],["23580131","Decision Pending","30d","Mara Solis","Lena Brooks","10/09/2026","Iowa Blue Shield"]]
+};
+function stationHTML(){
+  const main = S.tab==="learn" ? learnHTML() : worklistHTML();
+  return `<div class="station">${main}${todayPanel()}</div>`;
+}
+function asgCell(agent){ return `<span class="asg2"><span class="asg">LO</span>${agent?`<span class="asg-ag" title="Athelas Agent is working on this">${AV}</span>`:""}</span>`; }
+function workingCount(){
+  const base = WORKING0.length;
+  const single = Object.values(S.assigned).filter(a=>a.state==="working" && !a.inBulk).length;
+  const bulk = Object.values(S.bulk).filter(b=>b.state==="working").reduce((t,b)=>t+b.n,0);
+  return base + single + bulk;
+}
+function assignOne(id){
+  const order = Object.keys(S.assigned).length;
+  const row = Object.values(SAMPLE_ROWS).flat().find(r=>r[0]===id);
+  S.assigned[id] = {state:"working", step:0, result: order===0 ? "needs" : "solved", patient: row?row[3]:undefined, payer: row?row[6]:undefined, amt: 186.00};
+  render({keep:true});
+  setTimeout(()=>{
+    const a = S.assigned[id]; if (!a || a.state!=="working") return;
+    a.state = a.result;
+    if (a.result==="needs"){ NEEDS.unshift({id, patient:a.patient||"Assigned claim", payer:a.payer||"Medica", amt:a.amt||186.00, why:"I fixed the rest, but this claim needs an authorization number. I can't get it without you.", kind:"auth"}); }
+    else S.solvedExtra += 1;
+    render({keep:true});
+  }, reduced?200:7000);
+}
+function assignGroup(k){
+  const g = OTHER_GROUPS.find(x=>x.k===k); const n = parseInt(String(g.n).replace(/,/g,""),10);
+  S.bulk[k] = {state:"working", n};
+  SAMPLE_ROWS[k].forEach(r=>{ if (!S.assigned[r[0]]) S.assigned[r[0]] = {state:"working", step:0, result:"solved", inBulk:k}; });
+  render({keep:true});
+  setTimeout(()=>{
+    const b = S.bulk[k]; if (!b) return; b.state = "done";
+    SAMPLE_ROWS[k].forEach(r=>{ const a = S.assigned[r[0]]; if (a && a.inBulk===k) a.state = "solved"; });
+    const back = 2; S.solvedExtra += n - back;
+    NEEDS.unshift({id:"2358"+(Math.floor(Math.random()*9000)+1000), patient:"Hana Ito", payer:"Iowa Blue Shield", amt:228.00, why:"This one needs an authorization number. I can't get it without you.", kind:"auth"},
+                  {id:"2358"+(Math.floor(Math.random()*9000)+1000), patient:"Omar Reyes", payer:"Wellmark", amt:312.00, why:"The payer wants records I can't find on file.", kind:"records"});
+    b.back = back;
+    render({keep:true});
+  }, reduced?200:9000);
+}
+function worklistHTML(){
+  const left = needsLeft();
+  const needAmt = NEEDS.filter(n=>!S.done[n.id]).reduce((t,n)=>t+n.amt,0);
+  const workable = (19072 - (S.nightDone?41:0) - Object.values(S.done).length - S.solvedExtra).toLocaleString("en-US");
+  const mine = 128 - (S.nightDone?41:0) - Object.values(S.done).length - S.solvedExtra;
+  const head = `<tr><th><span class="cb"></span></th><th>Claim ID</th><th>Status</th><th>Athelas Agent</th><th>Time in Status</th><th>Stage</th><th>Patient</th><th>Date of Service</th><th>Insurance</th><th>Provider</th><th>Assignee</th></tr>`;
+  const needRows = NEEDS.map(n=>{
+    const d = S.done[n.id];
+    return `<tr class="claimrow ${d?"done":""}" data-claim="${n.id}" tabindex="0"><td><span class="cb"></span></td><td class="num">${n.id}</td><td><span class="stpill ${d?"":"denied"}">${d?"Resubmitted":"Denied"}</span></td>
+      <td><span class="agentcell ${d?"done":""}" title="${esc(n.why)}">${AV}<span>${d?"Done with your OK":({unsure:"Not sure which modifier",policy:"No policy on file",call:"Needs a call",appeal:"Likely needs an appeal",posting:"Needs the posting team",limit:"Over my limit",auth:"Needs an auth number",records:"Needs records"})[n.kind]}</span></span></td>
+      <td>${d?"0d":"1d"}</td><td><span class="stpill"><span class="ring"></span>Payer 1</span></td><td class="plink">${n.patient}</td><td>10/07/2026</td><td>${n.payer}</td><td>Dana Lee</td><td><span class="asg">LO</span></td></tr>`;
+  }).join("");
+  const needGroup = !S.nightDone ? "" : `<tr class="grow ${S.open.gNeed!==false?"open":""}"><td colspan="11"><button class="gt" data-gtoggle="gNeed" type="button" aria-expanded="${S.open.gNeed!==false}"><span class="gcaret"></span><span class="gchip needchip ${left?"":"clear"}">${left?`Needs your decision <span class="cnt">${left}</span>`:"All caught up"}</span><span class="gchip muted">${AV}Athelas Agent stopped on these</span><span class="gchip">${money(needAmt)} <span class="muted">| ${left}</span></span></button></td></tr>${S.open.gNeed!==false?needRows:""}`;
+  const wc = workingCount();
+  const singles = Object.entries(S.assigned).filter(([id,a])=>a.state==="working" && !a.inBulk);
+  const bulkW = Object.entries(S.bulk).filter(([k,b])=>b.state==="working");
+  const workRows = WORKING0.map(([id,p,pay,amt,steps])=>`<tr class="claimrow" data-sample tabindex="0"><td><span class="cb"></span></td><td class="num">${id}</td><td><span class="stpill">In progress</span></td>
+      <td><span class="agentcell working">${'<span class="mini-spin"></span>'}<span data-wstep="${id}">${steps[S.tick % steps.length]}</span></span></td><td>0d</td><td><span class="stpill"><span class="ring"></span>Payer 1</span></td><td class="plink">${p}</td><td>11/09/2026</td><td>${pay}</td><td>Dana Lee</td><td>${asgCell(true)}</td></tr>`).join("")
+    + singles.map(([id])=>`<tr class="claimrow" data-sample tabindex="0"><td><span class="cb"></span></td><td class="num">${id}</td><td><span class="stpill">In progress</span></td><td><span class="agentcell working"><span class="mini-spin"></span><span data-wstep="${id}">${ASSIGN_STEPS[S.tick % ASSIGN_STEPS.length]}</span></span></td><td>0d</td><td><span class="stpill"><span class="ring"></span>Payer 1</span></td><td class="plink">${S.assigned[id].patient||"Not set"}</td><td>10/09/2026</td><td>${S.assigned[id].payer||"Not set"}</td><td>Dana Lee</td><td>${asgCell(true)}</td></tr>`).join("")
+    + bulkW.map(([k,b])=>`<tr><td></td><td colspan="10" class="small"><span class="agentcell working" style="max-width:none"><span class="mini-spin"></span><span>Working through ${b.n} ${OTHER_GROUPS.find(x=>x.k===k).icon} claims you assigned</span></span></td></tr>`).join("");
+  const workGroup = !S.nightDone ? "" : `<tr class="grow ${S.open.gWork!==false?"open":""}" id="g-work"><td colspan="11"><button class="gt" data-gtoggle="gWork" type="button" aria-expanded="${S.open.gWork!==false}"><span class="gcaret"></span><span class="gchip workchip"><span class="mini-spin"></span>Athelas Agent is working on <span class="cnt">${wc}</span></span><span class="gchip muted">Still assigned to you. Open any to watch</span></button></td></tr>${S.open.gWork!==false?workRows:""}`;
+  const agentFor = id => { const a = S.assigned[id];
+    if (!a) return `<button class="btn mini" data-assign="${id}" type="button">Assign to Athelas Agent</button>`;
+    if (a.state==="working") return `<span class="agentcell working"><span class="mini-spin"></span><span data-wstep="${id}">${ASSIGN_STEPS[S.tick % ASSIGN_STEPS.length]}</span></span>`;
+    if (a.state==="needs") return `<span class="agentcell">${AV}<span>Sent back to you</span></span>`;
+    return `<span class="agentcell done">${AV}<span>Solved just now</span></span>`; };
+  const others = OTHER_GROUPS.map(g=>`<tr class="grow ${S.open["g"+g.k]?"open":""}"><td colspan="11"><div class="gt-row"><button class="gt" data-gtoggle="g${g.k}" type="button" aria-expanded="${!!S.open["g"+g.k]}"><span class="gcaret"></span><span class="gchip">${g.icon}</span><span class="gchip muted">${g.reason}</span><span class="gchip">${g.amt} <span class="muted">| ${g.n}</span></span></button>
+      ${S.bulk[g.k] ? `<span class="gchip ${S.bulk[g.k].state==="working"?"workchip":"donechip"}">${S.bulk[g.k].state==="working"?`<span class="mini-spin"></span>Assigned to Athelas Agent`:`${AV}Done. ${S.bulk[g.k].n - S.bulk[g.k].back} solved, ${S.bulk[g.k].back} sent back to you`}</span>` : `<button class="btn mini outline" data-assign-group="${g.k}" type="button">Assign all ${g.n} to Athelas Agent</button>`}</div></td></tr>
+    ${S.open["g"+g.k]?SAMPLE_ROWS[g.k].map(r=>`<tr class="claimrow" data-sample tabindex="0"><td><span class="cb"></span></td><td class="num">${r[0]}</td><td><span class="stpill">${S.assigned[r[0]]&&S.assigned[r[0]].state==="solved"?"Resubmitted":r[1]}</span></td><td>${agentFor(r[0])}</td><td>${r[2]}</td><td><span class="stpill"><span class="ring"></span>Payer 1</span></td><td class="plink">${r[3]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[4]}</td><td>${asgCell(S.assigned[r[0]]&&S.assigned[r[0]].state==="working")}</td></tr>`).join("")+`<tr><td colspan="11" class="muted small" style="padding-left:44px">And more in this group</td></tr>`:""}`).join("");
+  return `<section class="wl" aria-label="My claims">
+    <div class="wl-tabs" role="tablist"><button type="button">All Claims</button><button type="button">Workable Claims (${workable})</button><button type="button" aria-selected="true">My Claims (${mine})</button><span class="vsep"></span><button type="button">Denials</button><button type="button">Saved Views</button><span class="spacer"></span><button class="btn primary" type="button" data-noop>+ Create Claim</button></div>
+    <div class="wl-bar"><button class="btn" type="button" data-noop>Filter</button>
+      ${S.nightDone?`<span class="wl-note">${AV}41 fewer of your claims than yesterday. Athelas Agent solved them overnight. <button class="link" data-today="handled" type="button">See what it did</button></span>`:`<span class="wl-note">${AV}Athelas Agent is working through new remits.</span>`}
+      <button class="btn" type="button" data-noop>Display</button></div>
+    <div class="wl-scroll"><table class="wt"><thead>${head}</thead><tbody>${needGroup}${workGroup}${others}</tbody></table></div>
+  </section>`;
+}
+function todayPanel(){
+  const left = needsLeft();
+  const ref = S.refState, sug = 10 - S.refCount;
+  const P = S.panel || null;
+  const sec = (k, title, cnt, body) => `<div class="acc-sec"><button class="acc-head ${P===k?"open":""}" data-panel="${k}" type="button" aria-expanded="${P===k}"><b>${title}</b><span class="cnt">${cnt}</span><span class="chev"></span></button>${P===k?`<div class="acc-body">${body}</div>`:""}</div>`;
+  if (!S.nightDone) return `<aside class="today" aria-label="What happened today"><div class="today-head">${AV}<div><b>Today</b><div class="muted small">Athelas Agent is working</div></div></div><div class="today-body">${work("night", true)}</div></aside>`;
+
+  const todos = [];
+  if (left) todos.push(`<button class="todo" data-showneed type="button"><span class="tdot"></span><span class="tt"><b>${left} claim${left===1?"":"s"} need your decision</b>At the top of your worklist, with the reason I stopped</span><span class="go">Show</span></button>`);
+  if (ref==="suggest" && sug>0) todos.push(`<button class="todo" data-review-sugg type="button"><span class="tdot b"></span><span class="tt"><b>Confirm ${sug} suggestion${sug===1?"":"s"}</b>Then the referring provider fix can run on its own</span><span class="go">Review</span></button>`);
+  if (ref==="suggest" && sug===0) todos.push(`<button class="todo" data-review-sugg type="button"><span class="tdot b"></span><span class="tt"><b>Ask Morgan to approve a fix</b>You confirmed 10 of 10</span><span class="go">Ask</span></button>`);
+
+  const solved = HANDLED.map(g=>`<button class="li" data-open="${g.rule}" type="button" aria-expanded="${!!S.open[g.rule]}"><span>${g.name}${g.rule==="mod96"&&S.modPaused?` <span class="st pause">Paused</span>`:""}</span><span class="r">${g.n}</span></button>
+    ${S.open[g.rule]?`<div class="li-sub">${g.claims.map(([id,p,a,st])=>`<button class="li" data-claim="${id}" type="button"><span class="num">${id} ${p}</span><span class="pill ${st==="Paid"?"ok":"wait"}">${st}</span></button>`).join("")}<div class="muted small" style="padding:4px 0">And ${g.n-g.claims.length} more</div></div>`:""}`).join("");
+  const caught = CAUGHT.map(([id,p,a,t])=>`<div class="li" style="cursor:default"><span><span class="num">${id}</span> <span class="muted">${t}</span></span></div>`).join("") + `<div class="muted small" style="padding:4px 0">And 6 more. All on hold with Undo until 10:00 AM.</div>`;
+  const refStatus = ref==="auto" ? `<span class="st run">Runs on its own</span>` : ref==="pending" ? `<span class="st wait">Waiting on Morgan</span>` : `<span class="st learnst">Learning</span>`;
+  const learned = `<div class="howit">When you teach me a fix, I start by suggesting it and you confirm. After 10 confirmed, Morgan can let it run on its own.</div>
+    <div class="learn"><div class="learn-top"><b>Adds modifier 96 for habilitative care</b>${S.modPaused?`<span class="st pause">Paused</span>`:`<span class="st run">Runs on its own</span>`}</div><div class="meta">${S.modPaused?"Paused by you. These claims come to you instead":"Solved 23 claims overnight"}</div></div>
+    <div class="learn"><div class="learn-top"><b>Adds the referring provider from the referral</b>${refStatus}</div>
+      ${ref==="suggest"?`<div class="bar"><span style="width:${S.refCount*10}%"></span></div><div class="meta">${S.refCount} of 10 confirmed</div>`:`<div class="meta">${ref==="auto"?"Approved by Morgan today":"You confirmed 10 of 10"}</div>`}</div>
+    ${S.learned?`<div class="learn"><div class="learn-top"><b>Bills each line by its goal</b><span class="st learnst">Learning</span></div><div class="bar"><span style="width:${S.learnedCount*10}%"></span></div><div class="meta">Taught by you today. ${S.learnedCount} of 10 confirmed</div></div>`:""}
+    <button class="link small" data-tab="rules" type="button">See everything I've learned</button>`;
+
+  return `<aside class="today" aria-label="What happened today">
+    <div class="today-head">${AV}<div><b>Today</b><div><button class="link small" data-open="w-night" type="button" aria-expanded="${!!S.open["w-night"]}" style="color:var(--muted);font-weight:400">Worked through 56 claims overnight. ${S.open["w-night"]?"Hide steps":"See steps"}</button></div></div></div>
+    <div class="today-body">
+      ${S.open["w-night"]?`<div class="work" style="margin-bottom:12px">${STEPS.night.steps.map(([a,b])=>`<div class="wstep done"><span class="wcheck"></span><span><span>${a}</span><span class="wdetail">${b}</span></span></div>`).join("")}</div>`:""}
+      <p class="tp-greet">Good morning, Lorenza.</p>
+      ${todos.length?`<div class="tp-label">For you</div>${todos.join("")}`:`<div class="tp-label">For you</div><div class="muted small">Nothing right now.</div>`}
+      <div class="tiles three" style="margin-top:16px">
+        <button class="tile" data-panel="solved" type="button"><b class="num">${41+S.solvedExtra}</b><span>Solved</span></button>
+        <button class="tile" data-panel="caught" type="button"><b class="num">9</b><span>Caught before sending</span></button>
+        <button class="tile" data-showwork type="button"><b class="num">${workingCount()}</b><span>Working now</span></button>
+      </div>
+      <div class="acc">
+        ${sec("solved",S.solvedExtra?"Solved today":"Solved overnight",`${41+S.solvedExtra} claims${S.solvedExtra?", including "+S.solvedExtra+" you assigned":", $17,200"}`, solved)}
+        ${sec("caught","Caught before sending","9 claims", caught)}
+        ${sec("learned","What I've learned from you", S.learned?"3 fixes":"2 fixes", learned)}
+      </div>
+    </div></aside>`;
+}
+const SUGG = [["22316851","Ben Ward",145.20,"Dr. Kim, from the referral dated Oct 1"],["22316858","Kai Moreno",186.00,"Dr. Kim, from the referral dated Oct 3"]];
+function openLearn(kind){
+  if (S.working) stopWork();
+  S.view = "station"; S.tab = "learn"; S.claim = null;
+  S.llog = S.llog || [];
+  if (!S.llog.some(e=>e.k===kind)) S.llog.push({k:kind});
+  S.lfocus = kind;
+  render({to:"l-"+kind});
+}
+function overviewHTML(){
+  const ref = S.refState;
+  const fix = (title, chip, meta, actions) => `<div class="fix"><div class="fix-top"><b>${title}</b>${chip}</div><div class="meta">${meta}</div>${actions||""}</div>`;
+  return mAgent(`<p>Here's everything I've learned from you. When you teach me a fix, I start by suggesting it and you confirm each one. After 10 confirmed in a row, Morgan can let it run on its own. You can pause any of them.</p>
+    ${fix("Add modifier 96 when the plan of care is habilitative", S.modPaused?`<span class="st pause">Paused</span>`:`<span class="st run">Runs on its own</span>`,
+      S.modPaused?"Paused by you. New claims like these come to you instead.":"Taught by you from claim 22316691. Approved by Morgan on Oct 22. 41 handled in 14 days, 37 paid, 0 denied again.",
+      S.pauseConfirm?`<div class="confirm"><b>Pause this fix?</b><div class="muted small" style="margin:2px 0 10px">New claims like these will come to you. Claims already sent aren't affected.</div><div class="btns"><button class="btn primary" data-rule="pause-yes" type="button">Pause</button><button class="btn" data-rule="pause-no" type="button">Cancel</button></div></div>`
+        :`<div class="btns">${S.modPaused?`<button class="btn outline" data-rule="resume" type="button">Resume</button>`:`<button class="btn" data-rule="pause" type="button">Pause</button>`}</div>`)}
+    ${fix("Add the referring provider from the referral on file", ref==="auto"?`<span class="st run">Runs on its own</span>`:ref==="pending"?`<span class="st wait">Waiting on Morgan</span>`:`<span class="st learnst">Learning</span>`,
+      ref==="auto"?"Approved by Morgan today, after you confirmed 10 of 10.":ref==="pending"?"You confirmed 10 of 10. Sent to Morgan.":`I noticed you did this by hand on 8 claims. ${S.refCount} of 10 confirmed.`,
+      ref==="suggest"&&S.refCount<10?`<div class="btns"><button class="btn outline" data-review-sugg type="button">Review ${10-S.refCount} waiting</button></div>`:"")}
+    ${S.learned?fix("When a plan of care has both kinds of goals, bill each line by its goal", `<span class="st learnst">Learning</span>`, `Taught by you today on claim 22316790. ${S.learnedCount} of 10 confirmed. I'll suggest it on the next claim like this.`):""}`);
+}
+function reviewHTML(){
+  const done = S.refCount - 8;
+  const out = [mAgent(`<p>These ${SUGG.length} claims are missing the referring provider, and there's a referral on file for each. It's the fix you did by hand on 8 claims this week. Confirm each one, and it counts toward letting this run on its own.</p>
+    <div class="prog"><div class="bar"><span style="width:${Math.min(10,S.refCount)*10}%"></span></div><span>${Math.min(10,S.refCount)} of 10 confirmed</span></div>
+    ${SUGG.map(([id,p,a,who],i)=> i<done ? `<div class="sg compact ok"><span><b class="num" style="color:var(--ink)">${id}</b> ${p}</span><span>Confirmed by Lorenza</span></div>`
+      : i===done && S.refState==="suggest" ? `<div class="sg current"><div class="sg-top"><b class="num">${id} <span class="muted" style="font-weight:400">${p}, Prairie Health Plan, ${money(a)}</span></b></div>
+          <div class="chg">What will change: referring provider set to ${who}</div>
+          <div class="btns" style="margin-top:10px"><button class="btn primary" data-sugg="accept" type="button">Confirm</button><button class="btn" data-sugg="not" type="button">Not this</button></div></div>`
+      : `<div class="sg compact"><span><b class="num">${id}</b> ${p}</span><span>Next</span></div>`).join("")}`)];
+  if (S.refCount>=10) out.push(mAgent(`<p>That's 10 of 10 confirmed, with no changes. Want me to ask Morgan to let this fix run on its own?</p>${S.refState==="suggest"?`<div class="btns"><button class="btn primary" data-rule="ask" type="button">Ask Morgan</button><button class="btn" data-learn-later type="button">Not yet</button></div>`:""}`));
+  if (S.refCount>=10 && S.refState!=="suggest") out.push(mUser("Ask Morgan"));
+  if (S.refState==="pending" || S.refState==="auto") out.push(mEvent("Sent to Morgan with your 10 confirmations."));
+  if (S.refState==="auto") out.push(mEvent("Morgan approved. The referring provider fix now runs on its own.") + mAgent(`<p>Done. I'll handle these from now on, and they'll show up under Solved overnight so you can check my work.</p>`));
+  return out.join("");
+}
+function learnHTML(){
+  const log = (S.llog||[]).map(e=>{
+    if (e.k==="overview") return `<div id="l-overview">${overviewHTML()}</div>`;
+    if (e.k==="review") return `<div id="l-review">${reviewHTML()}</div>`;
+    if (e.k==="u") return mUser(e.t);
+    if (e.k==="a") return mAgent(e.t);
+    if (e.k==="e") return mEvent(e.t);
+    return "";
+  }).join("");
+  const chips = ["How does learning work?","Pause the modifier fix","What did you do overnight?"];
+  return `<section class="lconv" aria-label="Conversation with Athelas Agent">
+    <div class="lconv-top"><button class="back" data-tab="today" type="button" style="margin:0">Back to my claims</button><span style="flex:1"></span>${AV}<b>Athelas Agent</b></div>
+    <div class="thread" id="thread"><div class="inner">${log}</div></div>
+    <div class="composer"><div class="inner">
+      <div class="chips">${chips.map(c=>`<button class="chip" data-lchip="${esc(c)}" type="button">${esc(c)}</button>`).join("")}</div>
+      <form class="input-row" data-lask autocomplete="off"><input aria-label="Ask Athelas Agent" placeholder="Ask anything..." /><button class="send" type="submit" aria-label="Send"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z"/></svg></button></form>
+    </div></div></section>`;
+}
+function learnChat(t){
+  t = t.trim(); if (!t) return;
+  const q = t.toLowerCase();
+  S.llog.push({k:"u", t});
+  if (q.includes("pause")){ if (!S.llog.some(e=>e.k==="overview")) S.llog.push({k:"overview"}); S.pauseConfirm = true; S.llog.push({k:"a", t:`<p>Sure. Confirm in the card above and new claims like these will come to you instead.</p>`}); render(); return; }
+  let a;
+  if (q.includes("learn") || q.includes("how")) a = `<p>When you fix something by hand a few times, or tell me to remember a choice, I turn it into a fix. At first I only suggest it, and you confirm each one. If you change or reject one, the count starts over. After 10 confirmed in a row, Morgan, your billing manager, can let it run on its own.</p>`;
+  else if (q.includes("overnight")) a = `<p>I worked through 56 claims: solved 41 with what you've taught me, caught 9 before they went out, and stopped on 6 that need you.</p>`;
+  else a = `<p>I can explain how learning works, show what I've learned, or pause a fix.</p>`;
+  S.llog.push({k:"a", t:a});
+  render();
+}
+
+function rulesHTML(){
+  const ref = S.refState;
+  return `<section class="box">
+    <div class="rule">
+      <div class="rule-top"><div><h3>When Iowa Blue Shield PT claims have a habilitative plan of care, add modifier 96</h3><div class="src">Taught by Lorenza from claim 22316691. Approved by Morgan on Oct 22.</div></div>${S.modPaused?`<span class="pill warn">Paused</span>`:`<span class="pill ok">Runs on its own</span>`}</div>
+      <div class="stats"><div><b class="num">41</b><span>Handled, last 14 days</span></div><div><b class="num">37</b><span>Paid</span></div><div><b class="num">4</b><span>Waiting on payer</span></div><div><b class="num">0</b><span>Denied again</span></div></div>
+      ${S.pauseConfirm?`<div class="confirm"><b>Pause this rule?</b><div class="muted small" style="margin:2px 0 10px">New claims like these will come to you instead. Claims already sent aren't affected.</div><div class="btns"><button class="btn primary" data-rule="pause-yes" type="button">Pause rule</button><button class="btn" data-rule="pause-no" type="button">Cancel</button></div></div>`
+        :`<div class="btns">${S.modPaused?`<button class="btn outline" data-rule="resume" type="button">Resume</button>`:`<button class="btn" data-rule="pause" type="button">Pause</button>`}<button class="btn ghost" data-rule="edit" type="button">Edit conditions</button></div>`}
+    </div>
+    <div class="rule">
+      <div class="rule-top"><div><h3>When a Prairie Health Plan claim is missing the referring provider, add it from the referral on file</h3><div class="src">I noticed you did this by hand on 8 claims this week. Worked at 9 similar PT sites.</div></div>
+        ${ref==="auto"?`<span class="pill ok">Runs on its own</span>`:ref==="pending"?`<span class="pill wait">Waiting on Morgan</span>`:`<span class="pill grey">Suggest mode</span>`}</div>
+      ${ref==="suggest"?`<div class="bar" style="max-width:340px"><span style="width:${S.refCount*10}%"></span></div><div class="muted small">${S.refCount} of 10 suggestions accepted in a row</div>
+        ${S.refCount<10?`<div style="margin-top:10px">${S.showSugg?suggList():`<button class="btn outline" data-rule="show" type="button">Review ${10-S.refCount} waiting suggestions</button>`}</div>`
+        :`<div class="confirm"><b>Ready to run on its own</b><div class="muted small" style="margin:2px 0 10px">10 of 10 accepted with no edits. Turning it on needs Morgan's approval.</div><button class="btn primary" data-rule="ask" type="button">Ask Morgan to approve</button></div>`}`
+      : ref==="pending" ? `<div class="confirm"><b>Sent to Morgan</b><div class="muted small">Morgan sees the rule, your 10 accepted suggestions, and the claims it would touch. Until then it stays in Suggest mode.</div></div>`
+      : `<div class="stats"><div><b class="num">10</b><span>Accepted before approval</span></div><div><b>Morgan</b><span>Approved today</span></div></div>`}
+    </div>
+    ${S.learned?`<div class="rule"><div class="rule-top"><div><h3>When a plan of care has both habilitative and rehabilitative goals, bill each line by the goal it serves</h3><div class="src">Learned from Lorenza on claim 22316790, today.</div></div><span class="pill grey">Suggest mode</span></div>
+      <div class="bar" style="max-width:340px"><span style="width:${S.learnedCount*10}%"></span></div><div class="muted small">${S.learnedCount} of 10 accepted. I'll propose it on the next claims like this, and you confirm.</div></div>`:""}
+    <div class="rule"><div class="rule-top"><div><h3>Correct the patient address from the eligibility response</h3><div class="src">Athelas default. Approved by Morgan at setup.</div></div><span class="pill ok">Runs on its own</span></div></div>
+  </section>`;
+}
+function suggList(){
+  const rows = [["22316851","Ben Ward",145.20],["22316858","Kai Moreno",186.00]].slice(0, 10 - S.refCount);
+  return `<div class="confirm" style="background:var(--surface)"><b>Waiting suggestions</b>${rows.map(([id,p,a])=>`<div class="sugg"><b class="num">${id}</b><span>${p}, ${money(a)}. Add Dr. Kim from the referral dated Oct 1</span><button class="btn primary" data-rule="accept1" type="button">Accept</button></div>`).join("")}</div>`;
+}
+
+/* ---------- Claim view ---------- */
+function agentCard(){
+  let st = "", cls = "", extra = "";
+  if (S.claim==="22316905"){ st = "Solved this claim with a rule"; extra = `<button class="link rulelink" data-tab-go="rules" type="button">Modifier 96, habilitative PT</button>`; }
+  else if (S.claim==="22316790"){
+    const c = S.c790;
+    if (S.working) st = "Working on this claim";
+    else if (!c.choice){ st = "Stopped here. Needs your decision"; cls = "needs"; }
+    else if (c.s2 && !c.undone) st = "Waiting on Iowa Blue Shield";
+    else st = "Working with you on this claim";
+  } else {
+    const n = NEEDS.find(x=>x.id===S.claim);
+    st = S.done[S.claim] ? "Done with your OK" : "Stopped here. Needs you"; cls = S.done[S.claim]?"":"needs";
+  }
+  return `<div class="agent-card">${AV}<div><b>Athelas Agent</b><span class="st ${cls}">${st}</span>${extra}</div></div>`;
+}
+function claimFacts(){
+  if (S.claim==="22316905") return {status:["ok","Paid"], stage:"Closed", patient:"Alex Rivera", payer:"Iowa Blue Shield", dos:"10/30/2026", charges:386, paid:386, updated:"11/10/2026", by:"Athelas Agent"};
+  if (S.claim==="22316790"){
+    const resub = S.c790.s2 && !S.c790.undone;
+    return {status: resub?["wait","Resubmitted"]:["red","Denied, needs review"], stage: resub?"Waiting on Iowa Blue Shield":"Payer 1", patient:"Sam Okafor", payer:"Iowa Blue Shield", dos:"10/07/2026", charges:412, paid:0, updated: resub?"Today":"10/14/2026", by: resub?"Lorenza":"Athelas Agent"};
+  }
+  const n = NEEDS.find(x=>x.id===S.claim);
+  return {status: S.done[S.claim]?["wait","Resubmitted"]:["red","Denied, needs review"], stage:"Payer 1", patient:n.patient, payer:n.payer, dos:"10/07/2026", charges:n.amt, paid:0, updated:"10/14/2026", by:"Athelas Agent"};
+}
+function leftHTML(){
+  if (S.left!=="props"){
+    const s = SOURCES[S.left];
+    return `<aside class="panel"><div class="p-head"><b>Claim ${S.claim}</b></div><div class="p-body doc">
+      <button class="back" data-left="props" type="button">Back to properties</button>
+      <h3>${s.title}</h3><div class="meta">${s.meta}</div>${s.body.map(([t,h])=>`<p class="${h||""}">${esc(t)}</p>`).join("")}</div></aside>`;
+  }
+  const f = claimFacts();
+  return `<aside class="panel" aria-label="Claim properties"><div class="p-head"><b>Claim ${S.claim}</b></div><div class="p-body">
+    <div class="sec">Agents <span class="chev"></span></div>${agentCard()}
+    <div class="sec">Properties <span class="chev"></span></div>
+    <div class="pgrid">
+      <div><div class="pk">Status</div><span class="chipv ${f.status[0]}">${f.status[1]}</span></div>
+      <div><div class="pk">Stage</div><span class="chipv stage">${f.stage}</span></div>
+      <div><div class="pk">Assignee</div><span class="chipv person">Lorenza</span></div>
+      <div><div class="pk">Updated on</div><span class="chipv">${f.updated}</span></div>
+      <div><div class="pk">Updated by</div><span class="chipv">${f.by}</span></div>
+      <div><div class="pk">Submitted insurances</div><span class="chipv">Primary: ${f.payer}</span></div>
+    </div>
+    <div class="sep"></div>
+    <div class="ctx-head"><b>Context</b><button class="btn outline" type="button" data-noop>Save as my default</button></div>
+    <div class="widgets">
+      <div class="widget"><div class="k">Patient</div><div class="v">${f.patient}</div></div>
+      <div class="widget"><div class="k">Date of service</div><div class="v">${f.dos}</div></div>
+      <div class="widget"><div class="k">Charges</div><div class="v num">${money(f.charges)}</div></div>
+      <div class="widget"><div class="k">Paid</div><div class="v num">${money(f.paid)}</div></div>
+      ${S.claim==="22316790"?`<div class="widget wide"><div class="k">Plan of care</div><div class="v">Habilitative and rehabilitative goals</div></div>`:""}
+    </div>
+    <div class="muted small" style="margin-top:8px">Your default widgets for denials.</div>
+  </div></aside>`;
+}
+function convo790(){
+  const c = S.c790;
+  const out = [];
+  if (!S.seen["22316790"]) return mAgent(work("c790", true));
+  out.push(mAgent(work("c790", false) + `<div class="card"><h3>Summary</h3><h4>Where things stand</h4>
+    <p>This claim was <span class="denied">denied</span>. Rock Valley PT billed Iowa Blue Shield $412.00 for three therapy lines on Oct 7, 2026. The remittance denied all three under CO-4, a required modifier is missing. Nothing has been paid.</p>
+    <div>${ev("remit790","Denial: CO-4")}${ev("record790","Plan of care")}${ev("bulletin","Iowa Blue Shield bulletin")}</div>
+    ${thumbs("sum790")}
+    <div class="divider"></div>
+    <h4>Why I stopped</h4>
+    <p>Your modifier 96 rule covers habilitative plans of care. This one has both kinds of goals, so the rule doesn't fit cleanly, and I'd rather ask than guess.</p>
+    <div class="choices">
+      <button class="choice ${c.choice==="split"?"sel":""} ${c.choice&&c.choice!=="split"?"dim":""}" data-choose="split" type="button" ${c.choice?"disabled":""}><b>Bill each line by its goal</b><q>Build single leg balance and stair skills not previously attained.</q><q>Restore gait speed lost after a fall in August.</q><span class="small muted">96 on 97110 and 97112. 97 on 97116, the gait training after the fall. Matches the bulletin.</span></button>
+      <button class="choice ${c.choice==="all96"?"sel":""} ${c.choice&&c.choice!=="all96"?"dim":""}" data-choose="all96" type="button" ${c.choice?"disabled":""}><b>Use 96 on every line</b><q>Build single leg balance and stair skills not previously attained.</q><span class="small muted">Treats the whole plan as habilitative. Simpler, but the gait line restores a lost skill, and the bulletin says to bill by goal.</span></button>
+    </div></div>`));
+  if (c.choice){
+    out.push(mUser(c.choice==="split"?"Bill each line by its goal":"Use 96 on every line"));
+    if (c.remember===null) out.push(mAgent(`<div class="card"><h4>Should I remember this?</h4><p>Next time a plan of care has both kinds of goals, I'll propose billing each line by its goal. It starts in Suggest mode, so you'll confirm each one until it's earned your trust.</p>
+      <div class="btns"><button class="btn primary" data-remember="yes" type="button">Yes, remember this</button><button class="btn" data-remember="no" type="button">Not now</button></div></div>`));
+    else {
+      out.push(mEvent(c.remember==="yes"?`Lorenza taught the agent a new rule. It starts in Suggest mode. <button class="undo" data-tab-go="rules" type="button">See it in Rules</button>`:"Lorenza chose not to make this a rule."));
+      if (S.working==="apply") out.push(mAgent(work("apply", true)));
+      else if (S.seen.apply){ const [card, after] = planHTML().split("@@SPLIT@@"); out.push(mAgent(work("apply", false) + card)); out.push(after); }
+    }
+  }
+  return out.join("");
+}
+function planHTML(){
+  const c = S.c790;
+  const lines = c.choice==="split" ? "97110 and 97112 get 96, 97116 gets 97" : "97110, 97112, and 97116 get 96";
+  const resub = c.s2 && !c.undone;
+  return `<div class="card"><h4>Suggested plan</h4>
+    ${c.s1 ? `<div class="plan-step compact done"><span>1. Add the modifiers</span><span>Accepted by Lorenza</span></div>`
+      : `<div class="plan-step current"><div class="ps-top"><b>1. Add the modifiers</b><div class="btns"><button class="btn ghost" data-noop type="button">Edit</button><button class="btn primary" data-plan="s1" type="button">Accept</button></div></div><div class="chg">What will change: ${lines}</div></div>`}
+    ${c.s1 && !resub ? `<div class="plan-step current"><div class="ps-top"><b>2. Resubmit to Iowa Blue Shield</b><button class="btn primary" data-plan="s2" type="button">Resubmit</button></div><div class="muted small" style="margin-top:6px">Sent as a corrected claim, with a hold so you can undo.</div></div>`
+      : `<div class="plan-step compact ${resub?"done":""}"><span>2. Resubmit to Iowa Blue Shield</span><span>${resub?"Resubmitted by Lorenza":"Next"}</span></div>`}
+    <div class="plan-step compact"><span>3. Waiting on Iowa Blue Shield</span><span>${resub?"Open until paid":"Then"}</span></div>
+  </div>@@SPLIT@@
+  ${resub ? mEvent(S.hold==="open"?`Resubmitted by Lorenza. On hold until 4:00 PM. <button class="undo" data-plan="undo" type="button">Undo</button>`:`Hold ended. Sent to Iowa Blue Shield at 4:00 PM.`) + mAgent(`<p>Done. ${needsLeft()?`${needsLeft()} claims still need you.`:"That was the last one."}</p><div class="btns">${needsLeft()?`<button class="btn primary" data-claim="${NEEDS.find(n=>!S.done[n.id]).id}" type="button">Next claim that needs you</button>`:""}<button class="btn" data-go="station" type="button">Back to my claims</button></div>`) : ""}`;
+}
+function convo691(){
+  return mAgent(`<div class="card"><h3>How I solved this</h3>
+    <p>Claim 22316905 was denied for a missing modifier. You never had to touch it: I solved it with the rule you taught me on claim 22316691, and Iowa Blue Shield paid in full.</p>
+    <ul class="trace">
+      <li><span class="ck"></span><div>Read the denial: CO-4, required modifier missing <div>${ev("remit691","Remittance")}</div></div></li>
+      <li><span class="ck"></span><div>Confirmed the plan of care is habilitative <div>${ev("record691","Medical record")}</div></div></li>
+      <li><span class="ck"></span><div>Added modifier 96 to 97110, 97112, and 97140. Not on 97161, the evaluation</div></li>
+      <li><span class="ck"></span><div>Resubmitted Nov 3. Paid $386.00 on Nov 10</div></li>
+    </ul>
+    <div class="rulebox"><b>Rule used:</b> Add modifier 96 to habilitative PT for Iowa Blue Shield. Taught by Lorenza from claim 22316691 on Oct 15, approved by Morgan on Oct 22. <button class="link" data-tab-go="rules" type="button">Open rule</button></div>
+    ${thumbs("t691")}</div>`);
+}
+function convoOther(){
+  const n = NEEDS.find(x=>x.id===S.claim);
+  const next = {auth:"Add the authorization number, and I'll finish and resubmit the claim.", records:"Attach the records the payer asked for, and I'll send them.", policy:"Confirm Wellmark's modifier policy, then I'll apply it.", call:"Call the patient to confirm their current insurance.", appeal:"Start an appeal with the medical record attached.", posting:"Send it to the posting team with the remit line highlighted.", limit:"Approve the modifier rule on this claim, since it's over my limit."}[n.kind];
+  const done = S.done[S.claim];
+  return mAgent(`<div class="card"><h3>Why I stopped</h3><p>${n.why}</p><h4>Suggested next step</h4><p>${next}</p>
+    ${n.kind==="limit" ? (done?`<span class="pill ok">Approved by Lorenza. Resubmitted with modifier 96</span>`:`<div class="btns"><button class="btn primary" data-limit type="button">Approve and resubmit</button><button class="btn" data-go="station" type="button">Not now</button></div>`)
+      : `<p class="muted small" style="margin:0">This prototype goes deep on claim 22316790. The others show why the agent stopped and what it suggests.</p>`}</div>`);
+}
+function activityHTML(){
+  const items = [];
+  if (S.claim==="22316905") items.push(["a","Paid $386.00 by Iowa Blue Shield","Nov 10"],["a","Resubmitted by Athelas Agent using rule: modifier 96","Nov 3"],["","Denied, CO-4","Nov 2"]);
+  else if (S.claim==="22316790"){
+    if (S.c790.s2 && !S.c790.undone) items.push(["","Resubmitted by Lorenza","Today"]);
+    if (S.c790.s1) items.push(["a","Modifiers added. Proposed by Athelas Agent, accepted by Lorenza","Today"]);
+    if (S.c790.remember==="yes") items.push(["a","New rule taught by Lorenza, in Suggest mode","Today"]);
+    items.push(["a","Athelas Agent stopped: plan of care has both goal types","Today, 2:14 AM"],["","Denied, CO-4","Oct 14"]);
+  } else items.push(["a","Athelas Agent stopped and flagged for Lorenza","Today"],["","Denied","Oct 14"]);
+  return `<div class="card"><h4>Activity</h4><ul class="act-list">${items.map(([c,t,d])=>`<li><span class="d ${c}"></span><div><div>${t}</div><div class="t">${d}</div></div></li>`).join("")}</ul></div>`;
+}
+function claimHTML(){
+  const chat = (S.chat[S.claim]||[]).map(m=>m.r==="u"?mUser(m.t):m.r==="e"?mEvent(m.t):mAgent(m.t)).join("");
+  const body = S.threadTab==="activity" ? activityHTML()
+    : (S.claim==="22316790" ? convo790() : S.claim==="22316905" ? convo691() : convoOther()) + chat;
+  const chips = S.claim==="22316905" ? ["Why did you solve this?","Pause this rule","What did you do overnight?"] : ["Why did you stop?","What would you do?","What did you do overnight?"];
+  return `<div class="claim claim3">${leftHTML()}<section class="convo" aria-label="Athelas Agent">
+    <div class="view-switch" role="group" aria-label="Thread view"><button data-thread="conversation" type="button" aria-pressed="${S.threadTab==="conversation"}">Conversation</button><button data-thread="activity" type="button" aria-pressed="${S.threadTab==="activity"}">Activity</button></div>
+    <div class="thread" id="thread"><div class="inner">${body}</div></div>
+    <div class="composer"><div class="inner">
+      <div class="chips">${chips.map(c=>`<button class="chip" data-chip="${esc(c)}" type="button">${esc(c)}</button>`).join("")}</div>
+      <form class="input-row" data-ask autocomplete="off"><input aria-label="Ask anything" placeholder="Ask anything..." /><button class="send" type="submit" aria-label="Send"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z"/></svg></button></form>
+    </div><div class="helper inner" style="background:none;border:0;padding:0 4px">Athelas Agent works with the rules you've taught it. You decide anything new.</div></div>
+  </section>${todayPanel()}</div>`;
+}
+
+/* ---------- Render and timing ---------- */
+function render(opts={}){
+  renderTop();
+  const prev = $("#thread") ? $("#thread").scrollTop : 0;
+  const prevMain = $(".col") ? $(".col").scrollTop : 0;
+  $("#main").innerHTML = S.view==="station" ? stationHTML() : claimHTML();
+  const t = $("#thread");
+  if (t) t.scrollTop = opts.keep ? prev : (opts.top ? 0 : t.scrollHeight);
+  if (t && opts.to){ const el = document.getElementById(opts.to); if (el){ t.scrollTop = opts.end ? Math.max(0, el.offsetTop + el.offsetHeight - t.clientHeight + 20) : Math.max(0, el.offsetTop - 16); } }
+  if (opts.keep && $(".col")) $(".col").scrollTop = prevMain;
+  if (!S.working){
+    if (S.view==="station" && !S.nightDone) run("night", () => { S.nightDone = true; render(); });
+    else if (S.view==="claim" && S.claim==="22316790" && !S.seen["22316790"]) run("c790", () => { S.seen["22316790"] = true; render({top:true}); });
+  }
+}
+let timer = null;
+function run(key, done){
+  clearTimeout(timer); S.working = key; renderTop();
+  const card = document.querySelector(".agent-card .st"); if (card) card.textContent = "Working on this claim";
+  const n = STEPS[key].steps.length; let i = 0;
+  const step = () => {
+    document.querySelectorAll("#workBlock .wstep").forEach((el,k)=>{ el.classList.toggle("done",k<i); el.classList.toggle("active",k===i); });
+    if (i>n){ S.working = null; done(); return; }
+    i++; timer = setTimeout(step, reduced ? 60 : (i>n ? 450 : 1200));
+  };
+  step();
+}
+function stopWork(){
+  clearTimeout(timer);
+  if (S.working==="night") S.nightDone = true;
+  if (S.working==="c790") S.seen["22316790"] = true;
+  if (S.working==="apply") S.seen.apply = true;
+  S.working = null;
+}
+function openClaim(id){
+  if (S.working) stopWork();
+  S.view = "claim"; S.claim = id; S.left = "props"; S.threadTab = "conversation";
+  render({top:true});
+}
+
+/* ---------- Conversation ---------- */
+function chat(text){
+  const t = text.trim(); if (!t || !S.claim) return;
+  const q = t.toLowerCase();
+  const log = S.chat[S.claim] = S.chat[S.claim] || [];
+  log.push({r:"u", t});
+  let a;
+  if (q.includes("pause")){ S.pauseConfirm = true; openLearn("overview"); return; }
+  if (q.includes("overnight")) a = `<p>I worked through 56 claims: solved 41 with your rules, caught 9 before they went out, and held 6 for you. The biggest group was the modifier 96 rule, 23 claims.</p>`;
+  else if (q.includes("solve") && S.claim==="22316905") a = `<p>I used the modifier 96 rule you taught me on claim 22316691. Every step and its evidence is in "How I solved this" above.</p>`;
+  else if (q.includes("stop")) a = `<p>${S.claim==="22316790" ? "Your rule says habilitative plans of care get modifier 96. This plan of care has a rehabilitative goal too, so the rule didn't fit, and I don't apply rules where they don't fit." : NEEDS.find(n=>n.id===S.claim)?.why || "I stopped because this needed your judgment."}</p>`;
+  else if (q.includes("would you")) a = S.claim==="22316790" ? `<p>I'd bill each line by its goal, since that's what the Iowa Blue Shield bulletin says. But it's your call, and I'll learn from what you choose.</p>${ev("bulletin")}` : `<p>The suggested next step above is what I'd do.</p>`;
+  else a = `<p>I can explain why I stopped, what I did overnight, or how a rule works.</p>`;
+  log.push({r:"a", t:a});
+  render();
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click", e => {
+  const tr = e.target.closest("tr.claimrow");
+  if (tr && !e.target.closest("button")){ if (tr.dataset.claim) openClaim(tr.dataset.claim); return; }
+  const el = e.target.closest("button"); if (!el) return;
+  if (el.dataset.go){ if (S.working) stopWork(); S.view = el.dataset.go; S.claim = null; S.tab = "today"; render(); return; }
+  if (el.dataset.claim){ const id = el.dataset.claim; if (id==="22316790"||id==="22316905"||NEEDS.some(n=>n.id===id)) openClaim(id); else { el.querySelector("span").textContent += "  (opens like 22316905)"; } return; }
+  if (el.dataset.tab){ if (el.dataset.tab==="rules"){ openLearn("overview"); return; } S.view = "station"; S.tab = el.dataset.tab; S.claim = null; render(); return; }
+  if (el.dataset.tabGo){ openLearn("overview"); return; }
+  if (el.hasAttribute("data-review-sugg")){ openLearn("review"); return; }
+  if (el.hasAttribute("data-learn-later")){ S.llog.push({k:"a", t:`<p>No problem. It stays in learning mode, and you can ask Morgan whenever you're ready.</p>`}); render(); return; }
+  if (el.dataset.lchip){ learnChat(el.dataset.lchip); return; }
+  if (el.dataset.sugg){
+    if (el.dataset.sugg==="accept"){ S.refCount = Math.min(10, S.refCount+1); }
+    else { S.llog.push({k:"e", t:"Lorenza said Not this on a suggestion."}); S.llog.push({k:"a", t:`<p>Thanks. Since you changed one, the count starts over. I'll keep suggesting this fix until you've confirmed 10 in a row.</p>`}); S.refCount = 0; S.refState = "suggest"; }
+    render({to:"l-review", end:true}); return;
+  }
+  if (el.dataset.panel){ const k = el.dataset.panel; S.panel = (S.panel===k && el.classList.contains("acc-head")) ? null : k; render({keep:true}); return; }
+  if (el.hasAttribute("data-showneed")){ S.view="station"; S.tab="today"; S.open.gNeed = true; render({keep:true}); const r=document.querySelector(".grow"); if (r) r.scrollIntoView({block:"start"}); return; }
+  if (el.dataset.assign){ assignOne(el.dataset.assign); return; }
+  if (el.dataset.assignGroup){ assignGroup(el.dataset.assignGroup); return; }
+  if (el.hasAttribute("data-showwork")){ S.view="station"; S.tab="today"; S.open.gWork = true; render({keep:true}); const r=document.getElementById("g-work"); if (r) r.scrollIntoView({block:"start"}); return; }
+  if (el.dataset.gtoggle){ const k = el.dataset.gtoggle; S.open[k] = (k==="gNeed"||k==="gWork") ? (S.open[k]===false) : !S.open[k]; render({keep:true}); return; }
+  if (el.dataset.today){ S.panel = "solved"; render({keep:true}); return; }
+  if (el.dataset.open){ S.open[el.dataset.open] = !S.open[el.dataset.open]; render({keep:true}); return; }
+  if (el.dataset.src){ S.left = el.dataset.src; render({keep:true}); return; }
+  if (el.dataset.left){ S.left = el.dataset.left; render({keep:true}); return; }
+  if (el.dataset.thread){ S.threadTab = el.dataset.thread; render({top:true}); return; }
+  if (el.dataset.thumb){ const [k,v] = el.dataset.thumb.split(":"); S.thumbs[k] = v; render({keep:true}); return; }
+  if (el.dataset.chip){ chat(el.dataset.chip); return; }
+  if (el.dataset.choose){ S.c790.choice = el.dataset.choose; render(); return; }
+  if (el.dataset.remember){
+    S.c790.remember = el.dataset.remember;
+    if (el.dataset.remember==="yes"){ S.learned = true; S.learnedCount = 1; }
+    S.working = "apply"; render();
+    S.working = null; run("apply", () => { S.seen.apply = true; render(); });
+    return;
+  }
+  if (el.dataset.plan){
+    const p = el.dataset.plan;
+    if (p==="s1") S.c790.s1 = true;
+    if (p==="s2"){ S.c790.s2 = true; S.c790.undone = false; S.done["22316790"] = "Resubmitted"; }
+    if (p==="undo"){ S.c790.undone = true; S.c790.s2 = false; delete S.done["22316790"]; }
+    render(); return;
+  }
+  if (el.hasAttribute("data-limit")){ S.done[S.claim] = "Approved"; render(); return; }
+  if (el.dataset.rule){
+    const r = el.dataset.rule;
+    if (r==="pause") S.pauseConfirm = true;
+    if (r==="pause-no") S.pauseConfirm = false;
+    if (r==="pause-yes"){ S.modPaused = true; S.pauseConfirm = false; }
+    if (r==="resume") S.modPaused = false;
+    if (r==="show") S.showSugg = true;
+    if (r==="accept1"){ S.refCount = Math.min(10, S.refCount + 1); if (S.refCount>=10) S.showSugg = false; }
+    if (r==="ask"){ S.refState = "pending"; render({to:"l-review", end:true}); return; }
+    render({keep:true}); return;
+  }
+  if (el.id==="protoBtn"){ const p=$("#proto"); const on=!p.classList.contains("show"); p.classList.toggle("show",on); el.setAttribute("aria-expanded",on); return; }
+  if (el.hasAttribute("data-morgan")){ if (S.refState==="pending"){ S.refState = "auto"; S.tab==="learn" ? render({to:"l-review", end:true}) : render({keep:true}); } return; }
+  if (el.hasAttribute("data-hold")){ S.hold = S.hold==="open" ? "ended" : "open"; el.textContent = "Hold: " + (S.hold==="open"?"still open":"ended"); render({keep:true}); return; }
+  if (el.dataset.jump) jump(el.dataset.jump);
+});
+document.addEventListener("submit", e => {
+  const lf = e.target.closest("form[data-lask]");
+  if (lf){ e.preventDefault(); const i = lf.querySelector("input"); const v = i.value; i.value = ""; learnChat(v); return; }
+  const f = e.target.closest("form[data-ask]"); if (!f) return;
+  e.preventDefault(); const i = f.querySelector("input"); const v = i.value; i.value = ""; chat(v);
+});
+
+function jump(j){
+  clearTimeout(timer);
+  const hold = S.hold; S = fresh(); S.hold = hold;
+  if (j==="reset"){ render(); return; }
+  S.nightDone = true;
+  if (j==="station"){ render(); return; }
+  if (j==="rules"){ openLearn("overview"); return; }
+  if (j==="ready"){ S.refCount = 10; openLearn("review"); return; }
+  if (j==="solved"){ openClaim("22316905"); return; }
+  S.seen["22316790"] = true;
+  if (j==="unsure"){ openClaim("22316790"); return; }
+  if (j==="taught"){ S.c790.choice = "split"; S.c790.remember = "yes"; S.learned = true; S.seen.apply = true; openClaim("22316790"); const t=$("#thread"); t.scrollTop = t.scrollHeight; return; }
+}
+
+render();
+setInterval(()=>{ S.tick++;
+  document.querySelectorAll("[data-wstep]").forEach(el=>{ const id = el.dataset.wstep; const w = WORKING0.find(x=>x[0]===id); const steps = w ? w[4] : ASSIGN_STEPS; el.textContent = steps[S.tick % steps.length]; });
+}, reduced ? 100000 : 2200);
+</script>
+</body>
+</html>
